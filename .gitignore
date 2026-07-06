@@ -1,0 +1,4 @@
+/dist/
+/redline
+*.test
+*.out
