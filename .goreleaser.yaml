@@ -47,8 +47,8 @@ changelog:
 
 release:
   github:
-    owner: lawless
-    name: redline
+    owner: abhyuday-fr
+    name: Redline
   # Draft releases let you review the generated notes and assets before
   # publishing, rather than going live the instant CI finishes.
   draft: true

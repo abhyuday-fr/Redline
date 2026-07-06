@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/lawless/redline/internal/cmake"
-	"github.com/lawless/redline/internal/manifest"
+	"github.com/abhyuday-fr/Redline/internal/cmake"
+	"github.com/abhyuday-fr/Redline/internal/manifest"
 )
 
 // BuildDir returns the profile-specific build directory, e.g. build/dev.

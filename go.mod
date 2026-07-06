@@ -1,4 +1,4 @@
-module github.com/lawless/redline
+module github.com/abhyuday-fr/Redline
 
 go 1.22.2
 

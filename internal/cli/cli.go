@@ -10,11 +10,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/lawless/redline/internal/cmake"
-	"github.com/lawless/redline/internal/doctor"
-	"github.com/lawless/redline/internal/manifest"
-	"github.com/lawless/redline/internal/runner"
-	"github.com/lawless/redline/internal/scaffold"
+	"github.com/abhyuday-fr/Redline/internal/cmake"
+	"github.com/abhyuday-fr/Redline/internal/doctor"
+	"github.com/abhyuday-fr/Redline/internal/manifest"
+	"github.com/abhyuday-fr/Redline/internal/runner"
+	"github.com/abhyuday-fr/Redline/internal/scaffold"
 )
 
 // Execute is the entrypoint called from cmd/redline/main.go.
@@ -60,7 +60,7 @@ func Execute(args []string) int {
 }
 
 func printUsage() {
-	fmt.Fprint(os.Stderr, `redline is a build tool for C++ on Linux/Unix
+	fmt.Fprint(os.Stderr, `redline — a build tool for C++ on Linux/Unix
 
 Usage:
   redline rev [name] [--vcs=none]     Initialize a new project
@@ -81,7 +81,7 @@ func loadManifestFromCwd() (string, *manifest.Manifest, error) {
 	}
 	m, err := manifest.Load(dir)
 	if err != nil {
-		return "", nil, fmt.Errorf("not a redline project (%w). Run `redline rev` first", err)
+		return "", nil, fmt.Errorf("not a redline project (%w) — run `redline rev` first", err)
 	}
 	return dir, m, nil
 }
@@ -101,7 +101,7 @@ func runRev(args []string) error {
 		return err
 	}
 	if *libFlag {
-		return fmt.Errorf("--lib is not supported yet, v1 supports binary projects only")
+		return fmt.Errorf("--lib is not supported yet — v1 supports binary projects only")
 	}
 
 	name := ""

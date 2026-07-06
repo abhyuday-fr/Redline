@@ -8,8 +8,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/lawless/redline/internal/cmake"
-	"github.com/lawless/redline/internal/manifest"
+	"github.com/abhyuday-fr/Redline/internal/cmake"
+	"github.com/abhyuday-fr/Redline/internal/manifest"
 )
 
 // Options controls what Rev (the init routine) does.
