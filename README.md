@@ -21,7 +21,7 @@ Or download a release directly from the [Releases page](https://github.com/lawle
 - Linux or another Unix-like system
 - `cmake` (>= 3.20), `ninja`, and `git` are required
 - `gdb`, `valgrind`, `perf`, and a flamegraph renderer (`inferno` or
-  Brendan Gregg's `FlameGraph` scripts) are optional — `redline doctor`
+  Brendan Gregg's `FlameGraph` scripts) are optional. `redline doctor`
   checks for all of these and offers to install what's missing
 
 ## Quick start
@@ -40,7 +40,7 @@ redline run
 | `redline build [--release]` | Compile |
 | `redline run [--release] [--bin X]` | Build and run |
 | `redline run --gdb` | Run under gdb; auto-backtrace on crash |
-| `redline run --valgrind` | Run under valgrind memcheck (release profile only — see below) |
+| `redline run --valgrind` | Run under valgrind memcheck (release profile only, see below) |
 | `redline run --perf=fast\|detailed\|max [--flame]` | Profile with perf, optionally render a flamegraph |
 | `redline test` | Build and run `tests/main.cpp` if present |
 | `redline add <name>@<version> --git <url> [--dev] [--link-target X::Y]` | Add a FetchContent dependency |
@@ -57,7 +57,7 @@ myproject/
 │   ├── main.cpp        # default binary entry point
 │   └── bin/            # extra binaries (declared in redline.toml)
 ├── tests/
-│   └── main.cpp        # optional — auto-detected, enables `redline test`
+│   └── main.cpp        # optional and auto-detected, enables `redline test`
 └── build/
     ├── dev/             # separate build trees per profile
     └── release/
@@ -68,7 +68,7 @@ myproject/
 `redline` generates and regenerates only the region between:
 
 ```cmake
-# === ENGINE:BEGIN (auto-generated — do not edit between markers, changes will be overwritten) ===
+# === ENGINE:BEGIN (auto-generated, do not edit between markers, changes will be overwritten) ===
 ...
 # === ENGINE:END ===
 ```
@@ -96,14 +96,14 @@ both:
 
 `redline add` requires an explicit `@version`. An unpinned FetchContent
 dependency isn't reproducible, and CMake's FetchContent falls back to
-checking out a branch literally named `master` when no tag is given —
+checking out a branch literally named `master` when no tag is given, 
 which fails outright on any repo whose default branch has a different name
 (Catch2's is `devel`, for example).
 
 ## CMake target names aren't guessable
 
 `redline` defaults to linking `<name>::<name>` for a dependency, which
-works for libraries like `fmt` but not all of them — Catch2, for instance,
+works for libraries like `fmt` but not all of them, Catch2, for instance,
 exports `Catch2::Catch2WithMain`. Use `--link-target` on `redline add` to
 override it:
 
@@ -119,4 +119,4 @@ v1. Binary projects only (no `--lib` support yet). No dependency registry —
 
 ## License
 
-Not yet chosen — add one before publishing publicly.
+MIT — see [LICENSE](LICENSE).
