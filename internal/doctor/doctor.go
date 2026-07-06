@@ -133,58 +133,11 @@ func perfCheck() (bool, string) {
 		}
 		return false, fmt.Sprintf(
 			"perf is on PATH but no linux-tools package matches kernel %s "+
-				"(this is common on rolling/custom kernels or in containers), "+
-				"check `apt list linux-tools-*` for an available version, or build "+
+				"(this is common on rolling/custom kernels or in containers). "+
+				"Check `apt list linux-tools-*` for an available version, or build "+
 				"perf from your kernel source", kernel)
 	}
 	return false, "not found"
-}
-
-// sanitizerCheck actually compiles and links a trivial program with
-// -fsanitize=address,undefined, rather than just checking that a C++
-// compiler exists. Confirmed necessary: a user's Fedora machine had gcc
-// installed and working, but linking failed with "cannot find
-// libasan.so.8.0.0" because the sanitizer runtime libraries are a
-// separate package there — the compiler being present says nothing about
-// whether -fsanitize will actually link.
-func sanitizerCheck() (bool, string) {
-	cxx := "c++"
-	if _, err := exec.LookPath(cxx); err != nil {
-		cxx = "g++"
-	}
-	tmpfile, err := os.CreateTemp("", "redline-san-check-*.cpp")
-	if err != nil {
-		return false, "couldn't create temp file to test"
-	}
-	defer os.Remove(tmpfile.Name())
-	tmpfile.WriteString("int main(){}\n")
-	tmpfile.Close()
-
-	outBin, err := os.CreateTemp("", "redline-san-check-bin-*")
-	if err != nil {
-		return false, "couldn't create temp binary path to test"
-	}
-	outPath := outBin.Name()
-	outBin.Close()
-	os.Remove(outPath)
-	defer os.Remove(outPath)
-
-	out, err := exec.Command(cxx, "-fsanitize=address,undefined", "-o", outPath, tmpfile.Name()).CombinedOutput()
-	if err != nil {
-		msg := strings.TrimSpace(string(out))
-		if strings.Contains(msg, "cannot find") {
-			return false, "compiler present, but runtime libraries missing (build's -fsanitize link will fail)"
-		}
-		return false, "compile+link test failed: " + firstLine(msg)
-	}
-	return true, "verified via compile+link test"
-}
-
-func firstLine(s string) string {
-	if idx := strings.Index(s, "\n"); idx != -1 {
-		return s[:idx]
-	}
-	return s
 }
 
 // sanitizerCheck actually compiles and links a trivial program with
@@ -402,7 +355,7 @@ func Run(confirm func(command string) bool) error {
 	family := DetectFamily()
 	fmt.Printf("\n%d tool(s) missing.", len(installable))
 	if family == FamilyUnknown {
-		fmt.Println(" Couldn't detect your package manager. Please install these manually:")
+		fmt.Println(" Couldn't detect your package manager — please install these manually:")
 		for _, t := range installable {
 			fmt.Println("  -", t.name)
 		}
