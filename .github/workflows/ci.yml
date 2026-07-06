@@ -29,5 +29,8 @@ jobs:
           git clone --depth 1 https://github.com/brendangregg/FlameGraph.git /tmp/FlameGraph
           echo "/tmp/FlameGraph" >> "$GITHUB_PATH"
 
+      - name: Allow unprivileged perf sampling
+        run: sudo sysctl -w kernel.perf_event_paranoid=1
+
       - name: Run smoke tests
         run: sh ./scripts/smoketest.sh

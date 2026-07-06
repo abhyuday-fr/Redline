@@ -95,7 +95,7 @@ func diagnoseBuildFailure(output string) string {
 		(strings.Contains(output, "libasan") || strings.Contains(output, "libubsan") ||
 			strings.Contains(output, "libtsan") || strings.Contains(output, "liblsan")) {
 		return "hint: this profile has sanitizers enabled, but the sanitizer runtime " +
-			"libraries aren't installed on this system (the compiler itself is fine, " +
+			"libraries aren't installed on this system (the compiler itself is fine — " +
 			"this is a separate package on some distros, e.g. `libasan`/`libubsan` on " +
 			"Fedora/RHEL). Run `redline doctor` to check, or use --release to build " +
 			"without sanitizers in the meantime."
@@ -127,7 +127,7 @@ var perfFrequency = map[string]string{
 // is used.
 func Run(projectDir string, m *manifest.Manifest, profile cmake.Profile, binName string, flags RunFlags) error {
 	if flags.Gdb && flags.Valgrind {
-		return fmt.Errorf("--gdb and --valgrind can't be combined, run them separately")
+		return fmt.Errorf("--gdb and --valgrind can't be combined — run them separately")
 	}
 
 	if flags.Valgrind {
@@ -220,8 +220,8 @@ func Run(projectDir string, m *manifest.Manifest, profile cmake.Profile, binName
 		}
 		if len(activeProfile.Sanitizers) > 0 {
 			fmt.Fprintf(os.Stderr,
-				"warning: profiling the %s profile, which has sanitizers enabled (%s). "+
-					"The flamegraph may be dominated by sanitizer runtime overhead rather than "+
+				"warning: profiling the %s profile, which has sanitizers enabled (%s) — "+
+					"the flamegraph may be dominated by sanitizer runtime overhead rather than "+
 					"your program's real behavior. Consider --release for a representative profile.\n",
 				profile, strings.Join(activeProfile.Sanitizers, ", "))
 		}
@@ -262,7 +262,7 @@ func Run(projectDir string, m *manifest.Manifest, profile cmake.Profile, binName
 	// whether the transcript shows the inferior actually crashed.
 	_ = cmd.Run()
 	if crashSignal := detectCrashSignal(captured.String()); crashSignal != "" {
-		return fmt.Errorf("program crashed (%s). See backtrace above", crashSignal)
+		return fmt.Errorf("program crashed (%s) — see backtrace above", crashSignal)
 	}
 	return nil
 }
@@ -309,7 +309,7 @@ func generateFlamegraph(projectDir string, profile cmake.Profile, perfDataPath s
 	}
 
 	return fmt.Errorf(
-		"no flamegraph renderer found on PATH, install either inferno " +
+		"no flamegraph renderer found on PATH — install either inferno " +
 			"(cargo install inferno) or Brendan Gregg's FlameGraph scripts " +
 			"(github.com/brendangregg/FlameGraph, needs stackcollapse-perf.pl " +
 			"and flamegraph.pl on PATH); run `redline doctor` to check")
@@ -322,11 +322,18 @@ func pipeChain(outputPath string, cmds ...*exec.Cmd) error {
 		return fmt.Errorf("pipeChain: no commands given")
 	}
 
-	out, err := os.Create(outputPath)
+	tmp, err := os.CreateTemp(filepath.Dir(outputPath), ".flamegraph-*.tmp")
 	if err != nil {
 		return err
 	}
-	defer out.Close()
+	tmpPath := tmp.Name()
+	succeeded := false
+	defer func() {
+		tmp.Close()
+		if !succeeded {
+			os.Remove(tmpPath)
+		}
+	}()
 
 	for i := 0; i < len(cmds)-1; i++ {
 		pipe, err := cmds[i].StdoutPipe()
@@ -337,7 +344,7 @@ func pipeChain(outputPath string, cmds ...*exec.Cmd) error {
 		cmds[i].Stderr = os.Stderr
 	}
 	last := cmds[len(cmds)-1]
-	last.Stdout = out
+	last.Stdout = tmp
 	last.Stderr = os.Stderr
 
 	// Start downstream commands first so they're ready to consume as
@@ -355,6 +362,12 @@ func pipeChain(outputPath string, cmds ...*exec.Cmd) error {
 			return fmt.Errorf("running %s: %w", cmds[i].Path, err)
 		}
 	}
+
+	tmp.Close()
+	if err := os.Rename(tmpPath, outputPath); err != nil {
+		return fmt.Errorf("finalizing %s: %w", outputPath, err)
+	}
+	succeeded = true
 	fmt.Println("flamegraph written to", outputPath)
 	return nil
 }
