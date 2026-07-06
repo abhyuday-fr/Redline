@@ -1,6 +1,5 @@
-#include <iostream>
-
 int main() {
-  std::cout << "Hello, world!" << std::endl;
+  int *p = nullptr;
+  *p = 42; // guaranteed segfault
   return 0;
 }
