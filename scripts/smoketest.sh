@@ -20,15 +20,23 @@ PASS=0
 FAIL=0
 
 pass() { PASS=$((PASS + 1)); echo "  ok   - $1"; }
-fail() { FAIL=$((FAIL + 1)); echo "  FAIL - $1"; }
+fail() {
+    FAIL=$((FAIL + 1))
+    echo "  FAIL - $1"
+    if [ -n "${2:-}" ]; then
+        echo "  ----- captured output -----"
+        echo "$2" | sed 's/^/  | /'
+        echo "  ----------------------------"
+    fi
+}
 
-# assert_exit CMD_DESC EXPECTED_EXIT ACTUAL_EXIT
+# assert_exit CMD_DESC EXPECTED_EXIT ACTUAL_EXIT [CAPTURED_OUTPUT]
 assert_exit() {
-    desc="$1"; expected="$2"; actual="$3"
+    desc="$1"; expected="$2"; actual="$3"; captured="${4:-}"
     if [ "$expected" = "$actual" ]; then
         pass "$desc (exit $actual)"
     else
-        fail "$desc (expected exit $expected, got $actual)"
+        fail "$desc (expected exit $expected, got $actual)" "$captured"
     fi
 }
 
@@ -37,14 +45,14 @@ assert_contains() {
     desc="$1"; haystack="$2"; needle="$3"
     case "$haystack" in
         *"$needle"*) pass "$desc" ;;
-        *) fail "$desc (expected to find: $needle)" ;;
+        *) fail "$desc (expected to find: $needle)" "$haystack" ;;
     esac
 }
 
 cleanup() {
     if [ "${KEEP:-0}" = "1" ]; then
         echo ""
-        echo "KEEP=1 set, leaving workdir at $WORKDIR"
+        echo "KEEP=1 set — leaving workdir at $WORKDIR"
     else
         rm -rf "$WORKDIR"
     fi
@@ -72,11 +80,11 @@ echo ""
 echo "=== build/run: basic hello world ==="
 cp "$TESTDATA/hello.cpp" src/main.cpp
 out="$("$REDLINE" run 2>&1)"; code=$?
-assert_exit "run: dev profile hello world" 0 "$code"
+assert_exit "run: dev profile hello world" 0 "$code" "$out"
 assert_contains "run: dev profile prints greeting" "$out" "Hello, world!"
 
 out="$("$REDLINE" run --release 2>&1)"; code=$?
-assert_exit "run: release profile hello world" 0 "$code"
+assert_exit "run: release profile hello world" 0 "$code" "$out"
 
 echo ""
 echo "=== run --gdb: crash produces backtrace and nonzero exit ==="
@@ -92,10 +100,10 @@ open("redline.toml", "w").write(content)
 PYEOF
 if command -v gdb >/dev/null 2>&1; then
     out="$(timeout 15 "$REDLINE" run --bin crash --gdb 2>&1)"; code=$?
-    assert_exit "run --gdb: crash propagates as failure" 1 "$code"
+    assert_exit "run --gdb: crash propagates as failure" 1 "$code" "$out"
     assert_contains "run --gdb: backtrace shows crash location" "$out" "crash.cpp"
     out="$(timeout 15 "$REDLINE" run --gdb 2>&1)"; code=$?
-    assert_exit "run --gdb: normal binary still exits 0" 0 "$code"
+    assert_exit "run --gdb: normal binary still exits 0" 0 "$code" "$out"
 else
     echo "  skip - gdb not installed"
 fi
@@ -104,11 +112,11 @@ echo ""
 echo "=== run --valgrind: rejected on sanitized dev profile, works on release ==="
 if command -v valgrind >/dev/null 2>&1; then
     out="$("$REDLINE" run --valgrind 2>&1)"; code=$?
-    assert_exit "run --valgrind: dev profile rejected" 1 "$code"
+    assert_exit "run --valgrind: dev profile rejected" 1 "$code" "$out"
     assert_contains "run --valgrind: explains the ASan conflict" "$out" "sanitizers enabled"
 
     out="$("$REDLINE" run --release --valgrind 2>&1)"; code=$?
-    assert_exit "run --valgrind: release profile works" 0 "$code"
+    assert_exit "run --valgrind: release profile works" 0 "$code" "$out"
 else
     echo "  skip - valgrind not installed"
 fi
@@ -124,11 +132,14 @@ open("redline.toml", "w").write(content)
 PYEOF
 if command -v perf >/dev/null 2>&1 && perf --version >/dev/null 2>&1; then
     out="$("$REDLINE" run --release --bin burn --perf=max --flame 2>&1)"; code=$?
-    assert_exit "run --flame: builds and profiles successfully" 0 "$code"
-    if [ -f build/release/flamegraph.svg ]; then
-        pass "run --flame: flamegraph.svg was generated"
+    assert_exit "run --flame: builds and profiles successfully" 0 "$code" "$out"
+    # pipeChain creates the output file before the pipeline runs, so mere
+    # existence is a false positive if the pipeline failed immediately —
+    # check for real SVG content instead.
+    if [ -s build/release/flamegraph.svg ] && grep -q "<svg" build/release/flamegraph.svg 2>/dev/null; then
+        pass "run --flame: flamegraph.svg contains real SVG content"
     else
-        fail "run --flame: flamegraph.svg not found (renderer likely missing. Run redline doctor)"
+        fail "run --flame: flamegraph.svg missing or empty" "$out"
     fi
 else
     echo "  skip - perf not available/working on this system"
@@ -137,7 +148,7 @@ fi
 echo ""
 echo "=== add: requires an explicit version ==="
 out="$("$REDLINE" add fmt --git https://github.com/fmtlib/fmt.git 2>&1)"; code=$?
-assert_exit "add: bare name without version is rejected" 1 "$code"
+assert_exit "add: bare name without version is rejected" 1 "$code" "$out"
 assert_contains "add: explains why a version is required" "$out" "version"
 
 echo ""
@@ -148,18 +159,18 @@ mkdir -p tests
 
 cp "$TESTDATA/test_pass.cpp" tests/main.cpp
 out="$("$REDLINE" test 2>&1)"; code=$?
-assert_exit "test: passing Catch2 suite exits 0" 0 "$code"
+assert_exit "test: passing Catch2 suite exits 0" 0 "$code" "$out"
 assert_contains "test: reports assertions passed" "$out" "All tests passed"
 
 cp "$TESTDATA/test_fail.cpp" tests/main.cpp
 out="$("$REDLINE" test 2>&1)"; code=$?
-assert_exit "test: failing Catch2 suite exits nonzero" 1 "$code"
+assert_exit "test: failing Catch2 suite exits nonzero" 1 "$code" "$out"
 assert_contains "test: shows the failed assertion" "$out" "FAILED"
 
 echo ""
 echo "=== doctor: runs without crashing, declines install ==="
 out="$(echo "n" | "$REDLINE" doctor 2>&1)"; code=$?
-assert_exit "doctor: exits 0 after declining install" 0 "$code"
+assert_exit "doctor: exits 0 after declining install" 0 "$code" "$out"
 assert_contains "doctor: checks cmake" "$out" "cmake"
 
 echo ""
