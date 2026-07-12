@@ -30,4 +30,4 @@ jobs:
           echo "/tmp/FlameGraph" >> "$GITHUB_PATH"
 
       - name: Run smoke tests
-        run: ./scripts/smoketest.sh
+        run: sh ./scripts/smoketest.sh
