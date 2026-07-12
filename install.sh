@@ -1,12 +1,12 @@
 #!/bin/sh
 # Install redline from GitHub Releases.
 #
-#   curl -sSL https://raw.githubusercontent.com/lawless/redline/main/install.sh | sh
+#   curl -sSL https://raw.githubusercontent.com/abhyuday-fr/Redline/main/install.sh | sh
 #
 # Respects $INSTALL_DIR if set, otherwise installs to ~/.local/bin.
 set -eu
 
-REPO="lawless/redline"
+REPO="abhyuday-fr/Redline"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 
 os="$(uname -s)"

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/lawless/redline/internal/cli"
+	"github.com/abhyuday-fr/Redline/internal/cli"
 )
 
 // Populated at build time via -ldflags by .goreleaser.yaml. Defaults below

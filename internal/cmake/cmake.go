@@ -12,7 +12,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/lawless/redline/internal/manifest"
+	"github.com/abhyuday-fr/Redline/internal/manifest"
 )
 
 // Profile selects which [profiles.*] table from the manifest feeds the
@@ -24,7 +24,7 @@ const (
 	ProfileRelease Profile = "release"
 )
 
-const beginMarker = "# === ENGINE:BEGIN (auto-generated, do not edit between markers, changes will be overwritten) ==="
+const beginMarker = "# === ENGINE:BEGIN (auto-generated — do not edit between markers, changes will be overwritten) ==="
 const endMarker = "# === ENGINE:END ==="
 
 // ErrMarkersNotFound is returned when an existing CMakeLists.txt doesn't
@@ -34,7 +34,7 @@ type ErrMarkersNotFound struct{ Path string }
 
 func (e *ErrMarkersNotFound) Error() string {
 	return fmt.Sprintf(
-		"couldn't find managed markers in %s. Has it been edited? "+
+		"couldn't find managed markers in %s — has it been edited? "+
 			"run with --force-regen to reset the managed block, or restore the markers manually",
 		e.Path,
 	)
@@ -60,7 +60,7 @@ func generate(projectDir string, m *manifest.Manifest, profile Profile, force bo
 	if os.IsNotExist(err) {
 		// Fresh file: header + managed block + a friendly comment for user code.
 		content := renderHeader(m) + "\n" + block + "\n\n" +
-			"# Anything below this line is yours. Engine will never touch it.\n"
+			"# Anything below this line is yours — engine will never touch it.\n"
 		return os.WriteFile(path, []byte(content), 0o644)
 	}
 	if err != nil {
@@ -158,14 +158,14 @@ func renderManagedBlock(projectDir string, m *manifest.Manifest, profile Profile
 					// GIT_TAG makes CMake's FetchContent fall back to checking
 					// out a branch literally named "master", which fails on
 					// any repo whose default branch has a different name.
-					fmt.Fprintf(&b, "  # WARNING: no version/tag pinned for %s, unpinned FetchContent deps aren't reproducible\n", name)
+					fmt.Fprintf(&b, "  # WARNING: no version/tag pinned for %s — unpinned FetchContent deps aren't reproducible\n", name)
 				}
 			} else {
 				// No explicit git URL: assume a github.com/<name>/<name>-style
 				// convention is too fragile to guess, so require Git to be
 				// set explicitly for now. This keeps generation honest rather
 				// than inventing a URL that might not exist.
-				fmt.Fprintf(&b, "  # NOTE: no git source specified for %s, set `git` in redline.toml\n", name)
+				fmt.Fprintf(&b, "  # NOTE: no git source specified for %s — set `git` in redline.toml\n", name)
 			}
 			fmt.Fprintf(&b, ")\n")
 			fmt.Fprintf(&b, "FetchContent_MakeAvailable(%s)\n\n", name)
