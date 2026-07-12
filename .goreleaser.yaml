@@ -1,0 +1,55 @@
+version: 2
+
+project_name: redline
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: redline
+    main: ./cmd/redline
+    binary: redline
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+
+archives:
+  - id: redline-archive
+    ids:
+      - redline
+    formats: [tar.gz]
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    files:
+      - README.md
+      - LICENSE*
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+
+release:
+  github:
+    owner: lawless
+    name: redline
+  # Draft releases let you review the generated notes and assets before
+  # publishing, rather than going live the instant CI finishes.
+  draft: true
+  prerelease: auto
