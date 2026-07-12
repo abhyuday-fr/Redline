@@ -103,21 +103,6 @@ func diagnoseBuildFailure(output string) string {
 	return ""
 }
 
-// diagnoseBuildFailure recognizes specific known-cryptic linker/compiler
-// errors and returns an actionable hint, or "" if nothing recognized.
-func diagnoseBuildFailure(output string) string {
-	if strings.Contains(output, "cannot find") &&
-		(strings.Contains(output, "libasan") || strings.Contains(output, "libubsan") ||
-			strings.Contains(output, "libtsan") || strings.Contains(output, "liblsan")) {
-		return "hint: this profile has sanitizers enabled, but the sanitizer runtime " +
-			"libraries aren't installed on this system (the compiler itself is fine — " +
-			"this is a separate package on some distros, e.g. `libasan`/`libubsan` on " +
-			"Fedora/RHEL). Run `redline doctor` to check, or use --release to build " +
-			"without sanitizers in the meantime."
-	}
-	return ""
-}
-
 // RunFlags controls how the built binary is executed.
 type RunFlags struct {
 	Gdb      bool
@@ -142,7 +127,7 @@ var perfFrequency = map[string]string{
 // is used.
 func Run(projectDir string, m *manifest.Manifest, profile cmake.Profile, binName string, flags RunFlags) error {
 	if flags.Gdb && flags.Valgrind {
-		return fmt.Errorf("--gdb and --valgrind can't be combined — run them separately")
+		return fmt.Errorf("--gdb and --valgrind can't be combined, run them separately")
 	}
 
 	if flags.Valgrind {
@@ -235,8 +220,8 @@ func Run(projectDir string, m *manifest.Manifest, profile cmake.Profile, binName
 		}
 		if len(activeProfile.Sanitizers) > 0 {
 			fmt.Fprintf(os.Stderr,
-				"warning: profiling the %s profile, which has sanitizers enabled (%s) — "+
-					"the flamegraph may be dominated by sanitizer runtime overhead rather than "+
+				"warning: profiling the %s profile, which has sanitizers enabled (%s). "+
+					"The flamegraph may be dominated by sanitizer runtime overhead rather than "+
 					"your program's real behavior. Consider --release for a representative profile.\n",
 				profile, strings.Join(activeProfile.Sanitizers, ", "))
 		}
@@ -277,7 +262,7 @@ func Run(projectDir string, m *manifest.Manifest, profile cmake.Profile, binName
 	// whether the transcript shows the inferior actually crashed.
 	_ = cmd.Run()
 	if crashSignal := detectCrashSignal(captured.String()); crashSignal != "" {
-		return fmt.Errorf("program crashed (%s) — see backtrace above", crashSignal)
+		return fmt.Errorf("program crashed (%s). See backtrace above", crashSignal)
 	}
 	return nil
 }
@@ -324,7 +309,7 @@ func generateFlamegraph(projectDir string, profile cmake.Profile, perfDataPath s
 	}
 
 	return fmt.Errorf(
-		"no flamegraph renderer found on PATH — install either inferno " +
+		"no flamegraph renderer found on PATH, install either inferno " +
 			"(cargo install inferno) or Brendan Gregg's FlameGraph scripts " +
 			"(github.com/brendangregg/FlameGraph, needs stackcollapse-perf.pl " +
 			"and flamegraph.pl on PATH); run `redline doctor` to check")

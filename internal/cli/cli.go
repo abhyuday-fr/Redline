@@ -108,6 +108,11 @@ func runRev(args []string) error {
 	dir := "."
 	if fs.NArg() > 0 {
 		dir = fs.Arg(0)
+		// The project name feeds the CMake target name and must be a bare
+		// identifier, not a path — confirmed that passing a path straight
+		// through (e.g. `redline rev /tmp/myproject` or `redline rev
+		// nested/dir`) breaks CMake configuration, since a target name
+		// containing slashes is invalid.
 		name = baseName(dir)
 	} else {
 		cwd, err := os.Getwd()
@@ -189,7 +194,7 @@ func runTest(args []string) error {
 		return err
 	}
 	if _, err := os.Stat(filepath.Join(dir, "tests", "main.cpp")); err != nil {
-		return fmt.Errorf("no tests/main.cpp found, create one to enable `redline test`")
+		return fmt.Errorf("no tests/main.cpp found — create one to enable `redline test`")
 	}
 	profile := parseProfile(*release)
 	return runner.Run(dir, m, profile, "tests", runner.RunFlags{})
@@ -198,8 +203,8 @@ func runTest(args []string) error {
 func runAdd(args []string) error {
 	fs := newFlagSet("add")
 	dev := fs.Bool("dev", false, "add as a dev-only (test) dependency")
-	git := fs.String("git", "", "git repository URL for FetchContent (required in v1, no registry yet)")
-	linkTarget := fs.String("link-target", "", "override the CMake target to link (default: <name>::<name> not all libraries follow this, e.g. Catch2 exports Catch2::Catch2WithMain)")
+	git := fs.String("git", "", "git repository URL for FetchContent (required in v1 — no registry yet)")
+	linkTarget := fs.String("link-target", "", "override the CMake target to link (default: <name>::<name> — not all libraries follow this, e.g. Catch2 exports Catch2::Catch2WithMain)")
 	if err := parseFlexible(fs, args); err != nil {
 		return err
 	}
@@ -207,7 +212,7 @@ func runAdd(args []string) error {
 		return fmt.Errorf("usage: redline add <name>[@version] [--git <url>] [--dev]")
 	}
 	if *git == "" {
-		return fmt.Errorf("--git <url> is required in v1 (no dependency registry yet. See design notes)")
+		return fmt.Errorf("--git <url> is required in v1 (no dependency registry yet — see design notes)")
 	}
 
 	spec := fs.Arg(0)
@@ -217,7 +222,7 @@ func runAdd(args []string) error {
 	}
 	if version == "" {
 		return fmt.Errorf(
-			"a version/tag is required, use `redline add %s@<tag>`. "+
+			"a version/tag is required — use `redline add %s@<tag>`. "+
 				"An unpinned dependency isn't reproducible, and CMake's FetchContent "+
 				"falls back to checking out a branch literally named \"master\" when "+
 				"no tag is given, which fails on any repo whose default branch is named "+
