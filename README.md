@@ -8,6 +8,9 @@ transparent, hand-editable `CMakeLists.txt`, plus built-in support for gdb,
 valgrind, and perf/flamegraph profiling without hand-assembling the
 incantations yourself.
 
+# Demo gif
+![redline demo](demo.gif)
+
 ## Install
 
 ```sh
