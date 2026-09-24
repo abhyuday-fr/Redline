@@ -60,7 +60,7 @@ myproject/
 │   ├── main.cpp        # default binary entry point
 │   └── bin/            # extra binaries (declared in redline.toml)
 ├── tests/
-│   └── main.cpp        # optional — auto-detected, enables `redline test`
+│   └── main.cpp        # optional: auto-detected, enables `redline test`
 └── build/
     ├── dev/             # separate build trees per profile
     └── release/
@@ -76,7 +76,7 @@ myproject/
 # === ENGINE:END ===
 ```
 
-Everything outside those markers is yours — `redline` never touches it, and
+Everything outside those markers is yours, `redline` never touches it, and
 regeneration preserves it exactly. If the markers are missing or edited,
 `redline` refuses to regenerate rather than guess; pass `--force-regen` to
 reset the managed block.
@@ -122,4 +122,4 @@ v1. Binary projects only (no `--lib` support yet). No dependency registry —
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).
