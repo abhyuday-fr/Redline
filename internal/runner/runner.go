@@ -95,7 +95,7 @@ func diagnoseBuildFailure(output string) string {
 		(strings.Contains(output, "libasan") || strings.Contains(output, "libubsan") ||
 			strings.Contains(output, "libtsan") || strings.Contains(output, "liblsan")) {
 		return "hint: this profile has sanitizers enabled, but the sanitizer runtime " +
-			"libraries aren't installed on this system (the compiler itself is fine — " +
+			"libraries aren't installed on this system (the compiler itself is fine, " +
 			"this is a separate package on some distros, e.g. `libasan`/`libubsan` on " +
 			"Fedora/RHEL). Run `redline doctor` to check, or use --release to build " +
 			"without sanitizers in the meantime."
@@ -220,7 +220,7 @@ func Run(projectDir string, m *manifest.Manifest, profile cmake.Profile, binName
 		}
 		if len(activeProfile.Sanitizers) > 0 {
 			fmt.Fprintf(os.Stderr,
-				"warning: profiling the %s profile, which has sanitizers enabled (%s) — "+
+				"warning: profiling the %s profile, which has sanitizers enabled (%s),  "+
 					"the flamegraph may be dominated by sanitizer runtime overhead rather than "+
 					"your program's real behavior. Consider --release for a representative profile.\n",
 				profile, strings.Join(activeProfile.Sanitizers, ", "))
@@ -309,7 +309,7 @@ func generateFlamegraph(projectDir string, profile cmake.Profile, perfDataPath s
 	}
 
 	return fmt.Errorf(
-		"no flamegraph renderer found on PATH — install either inferno " +
+		"no flamegraph renderer found on PATH. Install either inferno " +
 			"(cargo install inferno) or Brendan Gregg's FlameGraph scripts " +
 			"(github.com/brendangregg/FlameGraph, needs stackcollapse-perf.pl " +
 			"and flamegraph.pl on PATH); run `redline doctor` to check")
