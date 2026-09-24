@@ -15,6 +15,7 @@ import (
 	"github.com/abhyuday-fr/Redline/internal/manifest"
 	"github.com/abhyuday-fr/Redline/internal/runner"
 	"github.com/abhyuday-fr/Redline/internal/scaffold"
+	"github.com/abhyuday-fr/Redline/internal/todo"
 )
 
 // Execute is the entrypoint called from cmd/redline/main.go.
@@ -43,6 +44,8 @@ func Execute(args []string) int {
 		err = runClean(rest)
 	case "doctor":
 		err = runDoctor(rest)
+	case "todo":
+		err = runTodo(rest)
 	case "-h", "--help", "help":
 		printUsage()
 		return 0
@@ -71,6 +74,7 @@ Usage:
   redline add <dep>[@version] [--dev] Add a dependency
   redline clean                       Remove build artifacts
   redline doctor                      Check for gdb/valgrind/perf/cmake/ninja
+  redline todo [--markers=A,B] [dir]  List TODO/FIXME/etc comments
 `)
 }
 
@@ -264,4 +268,66 @@ func runClean(args []string) error {
 
 func runDoctor(args []string) error {
 	return doctor.Run(doctor.ConfirmStdin)
+}
+
+func runTodo(args []string) error {
+	fs := newFlagSet("todo")
+	markersFlag := fs.String("markers", "", "comma-separated marker words to look for (default: TODO,FIXME,XXX,HACK,BUG,NOTE,OPTIMIZE,REVIEW)")
+	if err := parseFlexible(fs, args); err != nil {
+		return err
+	}
+
+	dir := "."
+	if fs.NArg() > 0 {
+		dir = fs.Arg(0)
+	}
+
+	var markers []string
+	if *markersFlag != "" {
+		for _, m := range strings.Split(*markersFlag, ",") {
+			m = strings.TrimSpace(m)
+			if m != "" {
+				markers = append(markers, m)
+			}
+		}
+	}
+
+	matches, err := todo.Scan(dir, markers)
+	if err != nil {
+		return fmt.Errorf("scanning %s: %w", dir, err)
+	}
+
+	if len(matches) == 0 {
+		fmt.Println("no pending markers found")
+		return nil
+	}
+
+	counts := map[string]int{}
+	files := map[string]bool{}
+	for _, m := range matches {
+		fmt.Printf("%s:%d: %s: %s\n", m.File, m.Line, m.Marker, m.Comment)
+		counts[m.Marker]++
+		files[m.File] = true
+	}
+
+	fmt.Println()
+	summary := make([]string, 0, len(counts))
+	for _, marker := range todo.DefaultMarkers {
+		if n, ok := counts[marker]; ok {
+			summary = append(summary, fmt.Sprintf("%d %s", n, marker))
+		}
+	}
+	// Any custom markers not in the default list, appended in whatever
+	// order they were found so nothing silently drops from the summary.
+	seen := map[string]bool{}
+	for _, marker := range todo.DefaultMarkers {
+		seen[marker] = true
+	}
+	for marker, n := range counts {
+		if !seen[marker] {
+			summary = append(summary, fmt.Sprintf("%d %s", n, marker))
+		}
+	}
+	fmt.Printf("%d found across %d file(s): %s\n", len(matches), len(files), strings.Join(summary, ", "))
+	return nil
 }
