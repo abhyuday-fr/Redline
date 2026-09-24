@@ -63,7 +63,7 @@ func Execute(args []string) int {
 }
 
 func printUsage() {
-	fmt.Fprint(os.Stderr, `redline — a build tool for C++ on Linux/Unix
+	fmt.Fprint(os.Stderr, `redline is a build tool for C++ on Linux/Unix
 
 Usage:
   redline rev [name] [--vcs=none]     Initialize a new project
