@@ -70,7 +70,7 @@ directory to scan somewhere other than the current one.
 
 Known gap: raw string literals (`R"(...)"`) aren't understood by the scanner.
 
-## Project layout
+## Project layout when using Redline
 
 ```
 myproject/
