@@ -47,6 +47,7 @@ redline run
 | `redline todo [--markers=A,B] [dir]` | List TODO/FIXME/XXX/HACK/BUG/NOTE/OPTIMIZE/REVIEW comments with file and line |
 | `redline clean` | Remove build artifacts |
 | `redline doctor` | Check for required/optional tools, offer to install what's missing |
+| `redline man [--port N] [--no-open]`    | Serve an offline man-page-style C++11/17/20/23 reference on localhost | 
 
 ## Finding pending work
 
