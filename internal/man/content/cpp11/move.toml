@@ -1,0 +1,26 @@
+name = "std::move"
+header = "#include <utility>"
+summary = "cast an object to an rvalue so it can be moved from"
+synopsis = """
+template <class T>
+typename std::remove_reference<T>::type&& move(T&& t) noexcept;
+"""
+description = """
+std::move does not move anything. It is an unconditional cast to an rvalue
+reference, which lets overload resolution pick a move constructor or move
+assignment operator instead of the copy version.
+
+After being moved from, an object is valid but in an unspecified state.
+You may destroy it or assign to it; do not rely on its value.
+"""
+example = """
+std::vector<std::string> a = {"x", "y", "z"};
+std::vector<std::string> b = std::move(a);   // steals a's buffer
+// a is now valid but unspecified (usually empty)
+"""
+notes = """
+Moving from a const object silently falls back to a copy, because a
+const rvalue cannot bind to T&&. Writing return std::move(local); usually
+makes things worse, since it prevents copy elision.
+"""
+see_also = ["std::forward", "lambda expressions"]

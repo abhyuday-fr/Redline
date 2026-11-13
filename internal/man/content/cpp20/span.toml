@@ -1,0 +1,28 @@
+name = "std::span"
+header = "#include <span>"
+summary = "a non-owning view over a contiguous sequence of objects"
+synopsis = """
+template <class T, std::size_t Extent = std::dynamic_extent>
+class span;
+"""
+description = """
+std::span<T> is a pointer and a size that works for arrays, std::vector,
+std::array and raw buffers alike. Use it instead of a pointer plus length
+pair. Unlike string_view, the elements are mutable unless T is const.
+"""
+example = """
+void scale(std::span<double> xs, double k) {
+    for (double& x : xs) x *= k;
+}
+
+std::vector<double> v = {1, 2, 3};
+double a[] = {4, 5, 6};
+scale(v, 2.0);
+scale(a, 2.0);
+"""
+notes = """
+span does not own the data; the underlying storage must outlive it.
+Use std::span<const T> for read-only access. operator[] is not
+bounds-checked.
+"""
+see_also = ["std::string_view", "std::ranges"]

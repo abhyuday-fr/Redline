@@ -1,0 +1,25 @@
+name = "structured bindings"
+header = "(core language, no header needed)"
+summary = "declare several names bound to the parts of one object"
+synopsis = """
+auto [a, b, c] = expression;
+auto& [a, b] = expression;
+const auto& [a, b] = expression;
+"""
+description = """
+A structured binding unpacks an array, a std::tuple or std::pair (any
+tuple-like type), or a struct whose non-static data members are all
+public. The names refer to the elements; they are not separate copies
+unless the auto itself makes a copy.
+"""
+example = """
+std::map<std::string, int> ages = {{"ann", 31}, {"bob", 27}};
+for (const auto& [name, age] : ages) {
+    std::cout << name << " is " << age << "\\n";
+}
+"""
+notes = """
+Before C++20, structured bindings cannot be captured by lambdas. The
+number of names must match the number of elements exactly.
+"""
+see_also = ["auto", "std::optional"]

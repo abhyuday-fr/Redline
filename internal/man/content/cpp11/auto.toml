@@ -1,0 +1,27 @@
+name = "auto"
+header = "(core language, no header needed)"
+summary = "deduce a variable's type from its initializer"
+synopsis = """
+auto name = expression;
+const auto& name = expression;
+auto f(int x) -> decltype(x + 1);
+"""
+description = """
+auto tells the compiler to deduce the type of a variable from its
+initializer, using the same rules as template argument deduction. Top-level
+const and references are dropped unless you spell them out: auto x = r
+copies, const auto& x = r binds a reference.
+
+The trailing return type form (auto f() -> T) lets a return type refer to
+the function's parameters.
+"""
+example = """
+std::map<std::string, std::vector<int>> m;
+auto it = m.find("key");        // instead of the full iterator type
+const auto& v = it->second;     // reference, no copy
+"""
+notes = """
+auto x = {1, 2, 3} deduces std::initializer_list<int>. Since C++17,
+auto x{1} deduces int. C++14 added auto as a function return type.
+"""
+see_also = ["decltype", "std::initializer_list"]

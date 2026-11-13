@@ -1,0 +1,29 @@
+name = "std::variant"
+header = "#include <variant>"
+summary = "a type-safe union that holds one of several alternative types"
+synopsis = """
+template <class... Types>
+class variant;
+"""
+description = """
+std::variant<A, B, C> holds exactly one value, whose type is one of the
+listed alternatives, and always knows which one. Use std::get<T> or
+std::get_if<T> to access a specific alternative, std::holds_alternative<T>
+to test, and std::visit to apply a callable to whichever is active.
+"""
+example = """
+std::variant<int, std::string> v = "hello";
+
+std::visit([](const auto& x) { std::cout << x << "\\n"; }, v);
+
+if (auto* s = std::get_if<std::string>(&v)) {
+    use(*s);
+}
+"""
+notes = """
+std::get throws std::bad_variant_access on the wrong alternative.
+A variant can become valueless_by_exception if a conversion throws
+mid-assignment. A default-constructed variant holds a value-initialized
+first alternative.
+"""
+see_also = ["std::optional", "std::expected"]

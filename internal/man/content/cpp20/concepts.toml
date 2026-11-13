@@ -1,0 +1,35 @@
+name = "concepts"
+header = "#include <concepts>"
+summary = "named compile-time requirements on template arguments"
+synopsis = """
+template <class T>
+concept Name = constraint-expression;
+
+template <std::integral T>
+T f(T x);
+
+template <class T>
+    requires std::integral<T>
+T g(T x);
+"""
+description = """
+A concept is a named predicate evaluated at compile time. Constraining a
+template with a concept documents what it needs, and produces a clear
+error at the call site instead of a long instantiation failure.
+
+A requires expression can test whether given expressions are valid and
+what types they yield. <concepts> provides standard ones such as
+std::integral, std::same_as, std::convertible_to and std::invocable.
+"""
+example = """
+template <class T>
+concept Addable = requires(T a, T b) { a + b; };
+
+template <Addable T>
+T sum(T a, T b) { return a + b; }
+"""
+notes = """
+Constraints also take part in overload resolution: of two viable
+templates, the more constrained one is preferred.
+"""
+see_also = ["std::ranges"]

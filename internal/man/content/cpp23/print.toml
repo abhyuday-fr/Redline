@@ -1,0 +1,27 @@
+name = "std::print"
+header = "#include <print>"
+summary = "formatted output straight to stdout or a stream"
+synopsis = """
+template <class... Args>
+void print(std::format_string<Args...> fmt, Args&&... args);
+
+template <class... Args>
+void println(std::format_string<Args...> fmt, Args&&... args);
+"""
+description = """
+std::print formats its arguments with the same syntax as std::format and
+writes the result directly, with no intermediate string and no iostream
+state. std::println does the same and appends a newline.
+
+The format string is checked at compile time against the argument types.
+"""
+example = """
+std::println("hello, {}", "world");
+std::println("{:>8.3f} | {:#x}", 3.14159, 255);
+std::print(stderr, "error {}: {}\\n", code, msg);
+"""
+notes = """
+A literal brace is written {{ or }}. Output to a terminal handles Unicode
+correctly on platforms where the native encoding is UTF-8.
+"""
+see_also = ["std::format"]

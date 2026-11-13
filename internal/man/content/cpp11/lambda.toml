@@ -1,0 +1,31 @@
+name = "lambda expressions"
+header = "(core language, no header needed)"
+summary = "anonymous function objects that can capture local variables"
+synopsis = """
+[capture](parameters) -> return_type { body }
+"""
+description = """
+A lambda expression creates an unnamed closure object. The capture list
+chooses which enclosing variables the body can use, and how:
+
+    [=]    capture everything used, by copy
+    [&]    capture everything used, by reference
+    [x]    capture x by copy
+    [&x]   capture x by reference
+    []     capture nothing
+
+The return type is deduced if omitted.
+"""
+example = """
+std::vector<int> v = {5, 2, 9, 1};
+int threshold = 3;
+std::sort(v.begin(), v.end(), [](int a, int b) { return a > b; });
+auto it = std::find_if(v.begin(), v.end(),
+                       [threshold](int x) { return x < threshold; });
+"""
+notes = """
+A closure that captures by reference must not outlive the variables it
+refers to. C++14 added generic lambdas (auto parameters) and init-captures
+([p = std::move(ptr)]).
+"""
+see_also = ["auto", "std::move"]

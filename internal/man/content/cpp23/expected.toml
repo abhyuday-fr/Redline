@@ -1,0 +1,35 @@
+name = "std::expected"
+header = "#include <expected>"
+summary = "a value or an error, without exceptions"
+synopsis = """
+template <class T, class E>
+class expected;
+
+template <class E>
+class unexpected;
+"""
+description = """
+std::expected<T, E> holds either a value of type T or an error of type E.
+It makes failure part of the function signature, for code that does not
+want or cannot use exceptions.
+
+Create an error with std::unexpected(e). Test the result with
+has_value() or operator bool, read it with * or value(), and the error
+with error().
+"""
+example = """
+std::expected<int, std::string> parse(std::string_view s) {
+    int n = 0;
+    auto [p, ec] = std::from_chars(s.data(), s.data() + s.size(), n);
+    if (ec != std::errc{}) return std::unexpected("not a number");
+    return n;
+}
+
+if (auto r = parse("42")) use(*r);
+"""
+notes = """
+The monadic members and_then, transform and or_else chain operations
+without checking after every step. value() throws
+std::bad_expected_access if there is no value.
+"""
+see_also = ["std::optional", "std::variant"]

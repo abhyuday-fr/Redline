@@ -1,0 +1,28 @@
+name = "std::string_view"
+header = "#include <string_view>"
+summary = "a non-owning view of a contiguous sequence of characters"
+synopsis = """
+template <class CharT, class Traits = std::char_traits<CharT>>
+class basic_string_view;
+
+using string_view = basic_string_view<char>;
+"""
+description = """
+std::string_view is a pointer and a length. It can refer to a std::string,
+a string literal, or any character buffer without copying. Pass it by
+value to functions that only read text.
+"""
+example = """
+void greet(std::string_view name) {
+    std::cout << "hello, " << name << "\\n";
+}
+
+greet("literal");
+greet(std::string("temporary"));
+"""
+notes = """
+A string_view does not own its data and is not guaranteed to be
+null-terminated, so do not pass data() to C APIs that expect a C string.
+Never return a view of a local or temporary string; it will dangle.
+"""
+see_also = ["std::span"]

@@ -1,0 +1,35 @@
+name = "explicit object parameter"
+header = "(core language, no header needed)"
+summary = "name the object a member function is called on (deducing this)"
+synopsis = """
+struct S {
+    void f(this S& self);
+    template <class Self>
+    auto&& get(this Self&& self);
+};
+"""
+description = """
+A non-static member function may declare its first parameter with this.
+That parameter is the object itself, and it can be a template parameter,
+so one function deduces constness and value category instead of needing
+separate const, non-const and rvalue overloads.
+
+It also lets a lambda refer to itself, which makes recursive lambdas
+possible without std::function.
+"""
+example = """
+struct Box {
+    std::string s;
+    template <class Self>
+    auto&& value(this Self&& self) { return std::forward<Self>(self).s; }
+};
+
+auto fact = [](this auto self, int n) -> int {
+    return n <= 1 ? 1 : n * self(n - 1);
+};
+"""
+notes = """
+Inside such a function there is no implicit this pointer; use the named
+parameter. Member functions written this way cannot also be virtual.
+"""
+see_also = ["lambda expressions", "std::move"]
