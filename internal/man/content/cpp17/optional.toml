@@ -1,0 +1,20 @@
+name = "std::optional"
+header = "#include \u003Coptional\u003E"
+summary = "a wrapper that may or may not contain a value"
+synopsis = """
+template \u003Cclass T\u003E
+class optional;
+"""
+description = """
+std::optional\u003CT\u003E holds either a T or nothing. Use it instead of sentinel
+values (-1, nullptr) or out-parameters when "no result" is a valid outcome.
+"""
+example = """
+std::optional\u003Cint\u003E find(const std::vector\u003Cint\u003E& v, int x);
+
+if (auto r = find(v, 3)) {
+    use(*r);
+}
+"""
+notes = "value() throws std::bad_optional_access; operator* is unchecked."
+see_also = ["std::variant(3)"]
