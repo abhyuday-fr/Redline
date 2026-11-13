@@ -2,8 +2,10 @@ package man
 
 import (
 	"context"
+	_ "embed"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net"
 	"net/http"
 	"os"
@@ -11,11 +13,10 @@ import (
 	"os/signal"
 	"runtime"
 	"syscall"
-	"text/template"
 	"time"
 )
 
-// go:embed page.go.html
+//go:embed page.go.html
 var pageTmpl string
 
 type Options struct {
