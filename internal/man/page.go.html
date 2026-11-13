@@ -134,6 +134,59 @@
       color: #fff;
     }
 
+    /* version filter chips */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 1em;
+    }
+
+    .chip {
+      font: inherit;
+      font-size: 11px;
+      padding: 2px 8px;
+      cursor: pointer;
+      color: var(--fg);
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .chip:hover {
+      background: var(--hover);
+    }
+
+    .chip .n {
+      color: var(--dim);
+      margin-left: .3em;
+    }
+
+    .chip[aria-pressed="true"] {
+      color: #fff;
+      border-color: #659AD2;
+    }
+
+    .chip[aria-pressed="true"] .n {
+      color: inherit;
+    }
+
+    .chip.cpp11[aria-pressed="true"] {
+      background: #3f7fc0;
+    }
+
+    .chip.cpp17[aria-pressed="true"] {
+      background: #2f6fb0;
+    }
+
+    .chip.cpp20[aria-pressed="true"] {
+      background: #00599C;
+    }
+
+    .chip.cpp23[aria-pressed="true"] {
+      background: #004482;
+    }
+
     /* horizontal switch */
     .switch {
       position: relative;
@@ -210,9 +263,15 @@
       <button id="theme" class="switch" role="switch" aria-label="Dark mode" aria-checked="true"></button>
     </div>
     <input id="q" placeholder="filter…" autocomplete="off">
+    <div class="chips">
+      <button class="chip cpp11" data-std="cpp11" aria-pressed="false">C++11<span class="n"></span></button>
+      <button class="chip cpp17" data-std="cpp17" aria-pressed="false">C++17<span class="n"></span></button>
+      <button class="chip cpp20" data-std="cpp20" aria-pressed="false">C++20<span class="n"></span></button>
+      <button class="chip cpp23" data-std="cpp23" aria-pressed="false">C++23<span class="n"></span></button>
+    </div>
     {{range .Entries}}
     <!-- prettier-ignore -->
-    <a href="/p/{{.Standard}}/{{.Slug}}" data-k="{{.Name}} {{.StdLabel}}" {{if and $.Cur (eq $.Cur.Slug .Slug) (eq $.Cur.Standard .Standard)}}class="active"{{end}}>
+    <a href="/p/{{.Standard}}/{{.Slug}}" data-std="{{.Standard}}" data-k="{{.Name}} {{.StdLabel}}" {{if and $.Cur (eq $.Cur.Slug .Slug) (eq $.Cur.Standard .Standard)}}class="active"{{end}}>
       <span class="badge {{.Standard}}">{{.StdLabel}}</span>{{.Name}}
     </a>
     {{end}}
@@ -257,12 +316,42 @@
       sw.setAttribute('aria-checked', t === 'dark');
       try { localStorage.setItem('theme', t); } catch (e) { }
     };
+
     var q = document.getElementById('q');
-    q.oninput = function () {
-      document.querySelectorAll('nav a').forEach(function (a) {
-        a.style.display = a.dataset.k.toLowerCase().includes(q.value.toLowerCase()) ? '' : 'none';
+    var links = document.querySelectorAll('nav a[data-std]');
+    var chips = document.querySelectorAll('.chip');
+    var on = new Set();
+    try {
+      JSON.parse(localStorage.getItem('stds') || '[]').forEach(function (s) { on.add(s); });
+      q.value = sessionStorage.getItem('q') || '';
+    } catch (e) { }
+
+    chips.forEach(function (c) {
+      var n = 0;
+      links.forEach(function (a) { if (a.dataset.std === c.dataset.std) n++; });
+      c.querySelector('.n').textContent = n;
+      c.onclick = function () {
+        if (on.has(c.dataset.std)) on.delete(c.dataset.std); else on.add(c.dataset.std);
+        try { localStorage.setItem('stds', JSON.stringify(Array.from(on))); } catch (e) { }
+        apply();
+      };
+    });
+
+    function apply() {
+      var t = q.value.toLowerCase();
+      links.forEach(function (a) {
+        var okStd = on.size === 0 || on.has(a.dataset.std);
+        var okTxt = a.dataset.k.toLowerCase().includes(t);
+        a.style.display = okStd && okTxt ? '' : 'none';
       });
+      chips.forEach(function (c) { c.setAttribute('aria-pressed', on.has(c.dataset.std)); });
+    }
+
+    q.oninput = function () {
+      try { sessionStorage.setItem('q', q.value); } catch (e) { }
+      apply();
     };
+    apply();
   </script>
 </body>
 
