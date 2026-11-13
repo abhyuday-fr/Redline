@@ -11,6 +11,7 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
+//go:embed content/*/*.toml
 var contentFS embed.FS
 
 type Entry struct {
