@@ -1,15 +1,43 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>redline man</title>
+  <script>
+    (function () {
+      var t;
+      try { t = localStorage.getItem('theme'); } catch (e) { }
+      if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
   <style>
-    :root {
-      --bg: #1e1e2e;
-      --fg: #cdd6f4;
-      --dim: #7f849c;
-      --acc: #f9e2af;
+    :root[data-theme="dark"] {
+      --bg: #0a1626;
+      --nav: #0e1f36;
+      --line: #1b3555;
+      --hover: #16304f;
+      --fg: #d6e4f5;
+      --dim: #7f98b8;
+      --acc: #659AD2;
+      --active: #00599C;
+    }
+
+    :root[data-theme="light"] {
+      --bg: #f5f8fc;
+      --nav: #e9f0f8;
+      --line: #c9d8ea;
+      --hover: #d9e6f5;
+      --fg: #10253f;
+      --dim: #5a7090;
+      --acc: #00599C;
+      --active: #cfe0f3;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     body {
@@ -23,53 +51,132 @@
 
     nav {
       width: 300px;
+      flex-shrink: 0;
       overflow-y: auto;
-      border-right: 1px solid #313244;
+      background: var(--nav);
+      border-right: 1px solid var(--line);
       padding: 1em;
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1em;
+    }
+
+    .brand {
+      color: var(--acc);
+      font-weight: bold;
+      letter-spacing: .05em;
+    }
+
+    #q {
+      width: 100%;
+      margin-bottom: 1em;
+      padding: 6px 8px;
+      font: inherit;
+      color: var(--fg);
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      outline: none;
+    }
+
+    #q:focus {
+      border-color: var(--acc);
     }
 
     nav a {
       display: block;
       color: var(--fg);
       text-decoration: none;
-      padding: 2px 4px;
+      padding: 3px 6px;
+      border-radius: 3px;
     }
 
     nav a:hover {
-      background: #313244;
+      background: var(--hover);
     }
 
+    nav a.active {
+      background: var(--active);
+    }
+
+    /* standard badges: one blue ramp, oldest = lightest, newest = darkest */
     .badge {
       display: inline-block;
-      width: 3.2em;
+      width: 3.6em;
       text-align: center;
-      margin-right: .5em;
+      margin-right: .6em;
       font-size: 11px;
       border-radius: 3px;
-      color: #11111b;
+      border: 1px solid #659AD2;
     }
 
     .cpp11 {
-      background: #a6e3a1
+      background: #659AD2;
+      color: #04213f;
     }
 
     .cpp17 {
-      background: #89b4fa
+      background: #3f7fc0;
+      color: #fff;
     }
 
     .cpp20 {
-      background: #cba6f7
+      background: #00599C;
+      color: #fff;
     }
 
     .cpp23 {
-      background: #fab387
+      background: #004482;
+      color: #fff;
+    }
+
+    /* horizontal switch */
+    .switch {
+      position: relative;
+      width: 56px;
+      height: 28px;
+      padding: 0;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--hover);
+    }
+
+    .switch::after {
+      content: "☀";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--acc);
+      color: #fff;
+      font-size: 13px;
+      line-height: 20px;
+      text-align: center;
+      transition: transform .2s;
+    }
+
+    :root[data-theme="dark"] .switch::after {
+      content: "☾";
+      transform: translateX(28px);
+    }
+
+    .switch:focus-visible {
+      outline: 2px solid var(--acc);
+      outline-offset: 2px;
     }
 
     main {
       flex: 1;
       overflow-y: auto;
       padding: 2em 4em;
-      max-width: 90ch;
+      max-width: 115ch;
     }
 
     .hdr {
@@ -84,24 +191,28 @@
       color: var(--acc);
     }
 
-    /* SECTION HEADINGS */
     section {
       margin-left: 4ch;
     }
 
-    /* man-style indent */
     pre {
       margin: 0;
       white-space: pre-wrap;
+      font: inherit;
     }
   </style>
 </head>
 
 <body>
   <nav>
-    <input id="q" placeholder="filter…" style="width:100%;margin-bottom:1em">
+    <div class="top">
+      <span class="brand">redline man</span>
+      <button id="theme" class="switch" role="switch" aria-label="Dark mode" aria-checked="true"></button>
+    </div>
+    <input id="q" placeholder="filter…" autocomplete="off">
     {{range .Entries}}
-    <a href="/p/{{.Standard}}/{{.Slug}}" data-k="{{.Name}} {{.StdLabel}}">
+    <!-- prettier-ignore -->
+    <a href="/p/{{.Standard}}/{{.Slug}}" data-k="{{.Name}} {{.StdLabel}}" {{if and $.Cur (eq $.Cur.Slug .Slug) (eq $.Cur.Standard .Standard)}}class="active"{{end}}>
       <span class="badge {{.Standard}}">{{.StdLabel}}</span>{{.Name}}
     </a>
     {{end}}
@@ -110,11 +221,10 @@
     {{with .Cur}}
     <div class="hdr"><span>{{.Name}}(3)</span><span>C++ Programmer's Manual</span><span>{{.Name}}(3)</span></div>
     <h2>NAME</h2>
-    <section>{{.Name}} — {{.Summary}}</section>
+    <section>{{.Name}} - {{.Summary}}</section>
     <h2>SYNOPSIS</h2>
     <section>
-      <pre>{{.Header}}
-        {{.Synopsis}}</pre>
+      <pre>{{.Header}}{{"\n\n"}}{{.Synopsis}}</pre>
     </section>
     <h2>DESCRIPTION</h2>
     <section>
@@ -138,8 +248,21 @@
     {{end}}
   </main>
   <script>
-    q.oninput = () => document.querySelectorAll('nav a').forEach(a =>
-      a.style.display = a.dataset.k.toLowerCase().includes(q.value.toLowerCase()) ? '' : 'none');
+    var sw = document.getElementById('theme');
+    var root = document.documentElement;
+    sw.setAttribute('aria-checked', root.dataset.theme === 'dark');
+    sw.onclick = function () {
+      var t = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      root.dataset.theme = t;
+      sw.setAttribute('aria-checked', t === 'dark');
+      try { localStorage.setItem('theme', t); } catch (e) { }
+    };
+    var q = document.getElementById('q');
+    q.oninput = function () {
+      document.querySelectorAll('nav a').forEach(function (a) {
+        a.style.display = a.dataset.k.toLowerCase().includes(q.value.toLowerCase()) ? '' : 'none';
+      });
+    };
   </script>
 </body>
 
