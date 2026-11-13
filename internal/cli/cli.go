@@ -78,7 +78,7 @@ Usage:
   redline clean                       Remove build artifacts
   redline doctor                      Check for gdb/valgrind/perf/cmake/ninja
   redline todo [--markers=A,B] [dir]  List TODO/FIXME/etc comments
-  redline man                         Opens man pages for C++
+  redline man  [--port N] [--no-open] Browse C++11-23 feature docs in browser
 `)
 }
 
