@@ -174,6 +174,18 @@ assert_exit "doctor: exits 0 after declining install" 0 "$code" "$out"
 assert_contains "doctor: checks cmake" "$out" "cmake"
 
 echo ""
+echo "=== man: serves embedded pages ==="
+"$REDLINE" man --no-open --port 18765 >/dev/null 2>&1 &
+MAN_PID=$!
+sleep 1
+out="$(curl -s localhost:18765/p/cpp17/optional)"
+assert_contains "man: entry page renders" "$out" "std::optional"
+code="$(curl -s -o /dev/null -w '%{http_code}' localhost:18765/p/cpp17/nope)"
+assert_exit "man: unknown entry returns 404" 404 "$code"
+kill "$MAN_PID" 2>/dev/null
+wait "$MAN_PID" 2>/dev/null
+
+echo ""
 echo "=== clean: removes build artifacts ==="
 "$REDLINE" clean >/dev/null 2>&1
 if [ -d build/dev ] || [ -d build/release ]; then
