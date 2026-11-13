@@ -1,0 +1,2 @@
+82e1a5ae73a42a0511454b83852b2cc4fc7b4c92ef3b0454290ebb5cb360e5fe  redline_0.2.0_linux_amd64.tar.gz
+b47368e7db7aaf966af8b57f0b319388c5cd815f1a41c1d5af69bef1a8160687  redline_0.2.0_linux_arm64.tar.gz
