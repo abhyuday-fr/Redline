@@ -2,3 +2,4 @@
 /redline
 *.test
 *.out
+dist/
