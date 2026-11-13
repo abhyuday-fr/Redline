@@ -12,6 +12,7 @@ import (
 
 	"github.com/abhyuday-fr/Redline/internal/cmake"
 	"github.com/abhyuday-fr/Redline/internal/doctor"
+	"github.com/abhyuday-fr/Redline/internal/man"
 	"github.com/abhyuday-fr/Redline/internal/manifest"
 	"github.com/abhyuday-fr/Redline/internal/runner"
 	"github.com/abhyuday-fr/Redline/internal/scaffold"
@@ -46,6 +47,8 @@ func Execute(args []string) int {
 		err = runDoctor(rest)
 	case "todo":
 		err = runTodo(rest)
+	case "man":
+		err = runMan(rest)
 	case "-h", "--help", "help":
 		printUsage()
 		return 0
@@ -75,6 +78,7 @@ Usage:
   redline clean                       Remove build artifacts
   redline doctor                      Check for gdb/valgrind/perf/cmake/ninja
   redline todo [--markers=A,B] [dir]  List TODO/FIXME/etc comments
+  redline man                         Opens man pages for C++
 `)
 }
 
@@ -330,4 +334,18 @@ func runTodo(args []string) error {
 	}
 	fmt.Printf("%d found across %d file(s): %s\n", len(matches), len(files), strings.Join(summary, ", "))
 	return nil
+}
+
+func runMan(args []string) error {
+	fs := newFlagSet("man")
+	port := fs.String("port", "", "port to listen on (default: random free port)")
+	noOpen := fs.Bool("no-open", false, "don't open a browser automatically")
+	if err := parseFlexible(fs, args); err != nil {
+		return err
+	}
+	addr := "127.0.0.1:0"
+	if *port != "" {
+		addr = "127.0.0.1:" + *port
+	}
+	return man.Serve(man.Options{Addr: addr, NoOpen: *noOpen})
 }
