@@ -1,0 +1,31 @@
+name = "std::function"
+header = "#include <functional>"
+summary = "a type-erased wrapper for any copyable callable"
+synopsis = """
+template <class R, class... Args>
+class function<R(Args...)>;
+"""
+description = """
+std::function<R(Args...)> can store and later call any callable with a
+matching signature: a function pointer, a lambda, a functor, or a bound
+member function. This lets you keep different kinds of callables in the
+same variable, container or class member.
+
+Calling an empty std::function throws std::bad_function_call. It converts
+to bool, so you can test it first.
+"""
+example = """
+std::function<int(int, int)> op = [](int a, int b) { return a + b; };
+int x = op(2, 3);
+
+op = std::multiplies<int>();     // different callable, same type
+if (op) x = op(4, 5);
+"""
+notes = """
+The call goes through an indirection and a large callable may be
+heap-allocated, so avoid it in hot paths. For a parameter that is only
+called inside the function, a template parameter is faster. The stored
+callable must be copyable; C++23 std::move_only_function lifts that.
+"""
+ref = "https://en.cppreference.com/w/cpp/utility/functional/function"
+see_also = ["lambda expressions", "std::move_only_function"]

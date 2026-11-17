@@ -1,0 +1,31 @@
+name = "std::from_chars"
+header = "#include <charconv>"
+summary = "fast, non-allocating conversion between text and numbers"
+synopsis = """
+from_chars_result from_chars(const char* first, const char* last,
+                             int& value, int base = 10);
+
+to_chars_result to_chars(char* first, char* last, int value, int base = 10);
+"""
+description = """
+from_chars parses a number from a character range, and to_chars writes
+one. They are locale-independent, never allocate and never throw. Both
+return a struct holding a pointer to the first unprocessed or unwritten
+character, and an error code (ec).
+
+They are the fastest standard way to convert numbers and are what
+std::format uses under the hood in many implementations.
+"""
+example = """
+std::string_view s = "1234 rest";
+int n = 0;
+auto [ptr, ec] = std::from_chars(s.data(), s.data() + s.size(), n);
+if (ec == std::errc{}) use(n);          // n == 1234, ptr points at the space
+"""
+notes = """
+from_chars does not skip leading whitespace and does not accept a leading
+plus sign. Overloads for floating-point types reached standard library
+implementations later than the integer ones.
+"""
+ref = "https://en.cppreference.com/w/cpp/utility/from_chars"
+see_also = ["std::string_view", "std::format"]

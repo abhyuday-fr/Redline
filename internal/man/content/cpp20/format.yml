@@ -1,0 +1,30 @@
+name = "std::format"
+header = "#include <format>"
+summary = "type-safe string formatting with Python-style replacement fields"
+synopsis = """
+template <class... Args>
+std::string format(std::format_string<Args...> fmt, Args&&... args);
+
+template <class OutputIt, class... Args>
+OutputIt format_to(OutputIt out, std::format_string<Args...> fmt, Args&&... args);
+"""
+description = """
+std::format returns a std::string built from a format string with {}
+replacement fields. A field may carry an index and a format spec:
+
+    {}         next argument, default formatting
+    {1}        argument by position
+    {:>8.3f}   right-aligned, width 8, 3 decimals
+    {:#x}      hexadecimal with 0x prefix
+
+A literal brace is written {{ or }}.
+"""
+example = """
+std::string s = std::format("{} has {} items", "cart", 3);
+std::string t = std::format("{:>6.2f}|{:<6}|{:^6}", 3.14159, "ab", "cd");
+"""
+notes = """
+Library support arrived late: libstdc++ in GCC 13, libc++ in version 17.
+To format your own types, specialize std::formatter<T>.
+"""
+see_also = ["std::print"]

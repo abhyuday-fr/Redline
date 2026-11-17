@@ -1,0 +1,30 @@
+
+name = "if consteval"
+header = "(core language, no header needed)"
+summary = "branch on whether code runs at compile time"
+synopsis = """
+if consteval { /* compile-time path */ } else { /* runtime path */ }
+if !consteval { /* runtime path */ }
+"""
+description = """
+Inside a constexpr or consteval function, if consteval is true only when
+the call is being evaluated during constant evaluation. It lets a
+function use a compile-time-safe algorithm there and a faster
+runtime-only one (such as an intrinsic or SIMD) otherwise.
+
+It replaces std::is_constant_evaluated() from C++20, which behaved
+surprisingly inside if constexpr.
+"""
+example = """
+constexpr int count_bits(unsigned x) {
+    if consteval {
+        int n = 0;
+        for (; x; x &= x - 1) ++n;
+        return n;
+    } else {
+        return std::popcount(x);
+    }
+}
+"""
+notes = "The braces are required. if !consteval is the negated form."
+see_also = ["if constexpr"]

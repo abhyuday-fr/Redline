@@ -1,0 +1,33 @@
+name = "std::source_location"
+header = "#include <source_location>"
+summary = "capture file, line and function of a code location"
+synopsis = """
+class source_location {
+    static consteval source_location current() noexcept;
+    constexpr uint_least32_t line() const noexcept;
+    constexpr uint_least32_t column() const noexcept;
+    constexpr const char* file_name() const noexcept;
+    constexpr const char* function_name() const noexcept;
+};
+"""
+description = """
+source_location::current() describes where it is called. When used as a
+default argument, it describes the location of the caller instead, which
+is how a logging function can report where it was called from without
+any macro.
+"""
+example = """
+void log(std::string_view msg,
+         std::source_location loc = std::source_location::current()) {
+    std::cout << loc.file_name() << ":" << loc.line()
+              << " " << msg << "\\n";
+}
+
+log("starting up");        // reports this line, not the one inside log
+"""
+notes = """
+It replaces the __FILE__, __LINE__ and __func__ macros in most code. The
+contents of function_name() are implementation-defined.
+"""
+ref = "https://en.cppreference.com/w/cpp/utility/source_location"
+see_also = ["consteval"]

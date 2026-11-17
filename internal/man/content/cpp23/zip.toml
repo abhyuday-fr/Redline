@@ -1,0 +1,31 @@
+name = "std::views::zip"
+header = "#include <ranges>"
+summary = "iterate several ranges in lockstep"
+synopsis = """
+std::views::zip(r1, r2, ...)
+std::views::zip_transform(f, r1, r2, ...)
+std::views::enumerate(r)
+"""
+description = """
+zip produces a view whose elements are tuples holding one element from
+each input range. The view ends when the shortest input ends.
+
+The tuple members are references into the original ranges, so writing
+through them modifies the source. zip_transform applies a function to
+each group instead of producing tuples, and enumerate pairs every element
+with its index.
+"""
+example = """
+std::vector<std::string> names = {"ann", "bob", "cy"};
+std::vector<int> scores = {90, 72, 85};
+
+for (auto&& [name, score] : std::views::zip(names, scores)) {
+    std::cout << name << ": " << score << "\\n";
+}
+"""
+notes = """
+Before C++23 there was no standard zip, which is why range-v3 users know
+it as a library feature. Standard library support is recent, so check
+your toolchain.
+"""
+see_also = ["std::ranges", "structured bindings"]

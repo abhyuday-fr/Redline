@@ -1,0 +1,28 @@
+name = "if and switch with initializer"
+header = "(core language, no header needed)"
+summary = "declare a variable inside the condition of if or switch"
+synopsis = """
+if (init-statement; condition) statement
+switch (init-statement; condition) statement
+"""
+description = """
+An if or switch can start with an initialization that is separated from
+the condition by a semicolon. The variable is visible in the condition
+and in every branch, including else, and goes out of scope after the
+whole statement. This keeps temporary names out of the enclosing block.
+"""
+example = """
+if (auto it = m.find(key); it != m.end()) {
+    use(it->second);
+} else {
+    std::cout << "missing\\n";
+}
+
+if (std::lock_guard lk(mu); ready) { /* ... */ }
+"""
+notes = """
+C++20 added the same optional init-statement to the range-based for
+loop.
+"""
+ref = "https://en.cppreference.com/w/cpp/language/if"
+see_also = ["structured bindings", "std::scoped_lock"]

@@ -1,0 +1,37 @@
+name = "variadic templates"
+header = "(core language, no header needed)"
+summary = "templates that take any number of arguments"
+synopsis = """
+template <class... Ts>
+void f(Ts... args);
+
+sizeof...(Ts)
+f(args...)
+"""
+description = """
+A parameter pack, declared with an ellipsis, stands for zero or more
+template arguments or function arguments. Writing the pack followed by an
+ellipsis, as in g(args...), expands it into a comma-separated list.
+
+The classic way to process a pack is recursion: handle the first element
+and recurse on the rest, with an overload for the empty case as the base.
+sizeof...(Ts) gives the number of elements.
+"""
+example = """
+void print() {}
+
+template <class T, class... Rest>
+void print(const T& first, const Rest&... rest) {
+    std::cout << first << " ";
+    print(rest...);
+}
+
+print(1, "two", 3.0);
+"""
+notes = """
+To forward a pack unchanged, use perfect forwarding:
+f(std::forward<Ts>(args)...). C++17 fold expressions replace most
+recursive patterns with a single expression.
+"""
+ref = "https://en.cppreference.com/w/cpp/language/parameter_pack"
+see_also = ["fold expressions", "std::move"]

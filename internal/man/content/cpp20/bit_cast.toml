@@ -1,0 +1,30 @@
+
+name = "std::bit_cast"
+header = "#include <bit>"
+summary = "reinterpret an object's bytes as another type, safely"
+synopsis = """
+template <class To, class From>
+constexpr To bit_cast(const From& from) noexcept;
+"""
+description = """
+bit_cast creates a new object of type To whose bytes are a copy of the
+bytes of from. It is the defined-behaviour way to do type punning, in
+place of reinterpret_cast on pointers (which breaks strict aliasing) or a
+union (also undefined in C++).
+
+Both types must have the same size and be trivially copyable, or the
+program does not compile.
+"""
+example = """
+float f = 1.0f;
+auto bits = std::bit_cast<std::uint32_t>(f);     // 0x3f800000
+
+// and back
+float g = std::bit_cast<float>(bits);
+"""
+notes = """
+It is constexpr, which memcpy is not. The rest of <bit> offers integer
+bit operations such as std::popcount, std::countl_zero and std::rotl.
+"""
+ref = "https://en.cppreference.com/w/cpp/numeric/bit_cast"
+see_also = ["constexpr"]

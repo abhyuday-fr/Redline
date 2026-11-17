@@ -1,0 +1,29 @@
+name = "std::scoped_lock"
+header = "#include <mutex>"
+summary = "RAII ownership of one or more mutexes, deadlock-free"
+synopsis = """
+template <class... MutexTypes>
+class scoped_lock;
+"""
+description = """
+std::scoped_lock locks the mutexes it is given when it is constructed and
+unlocks them when it is destroyed. With several mutexes it locks them all
+together using a deadlock-avoidance algorithm, so two threads taking the
+same mutexes in a different order cannot deadlock.
+
+It supersedes std::lock_guard for new code, and class template argument
+deduction lets you omit the mutex types.
+"""
+example = """
+void transfer(Account& from, Account& to, int amount) {
+    std::scoped_lock lock(from.mu, to.mu);
+    from.balance -= amount;
+    to.balance += amount;
+}
+"""
+notes = """
+It cannot be unlocked early and cannot be moved. If you need to unlock
+manually, or to wait on a std::condition_variable, use std::unique_lock.
+"""
+ref = "https://en.cppreference.com/w/cpp/thread/scoped_lock"
+see_also = ["std::thread", "class template argument deduction"]

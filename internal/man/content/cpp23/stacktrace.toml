@@ -1,0 +1,31 @@
+name = "std::stacktrace"
+header = "#include <stacktrace>"
+summary = "capture and print the current call stack"
+synopsis = """
+template <class Allocator>
+class basic_stacktrace;
+
+using stacktrace = basic_stacktrace<std::allocator<std::stacktrace_entry>>;
+"""
+description = """
+std::stacktrace::current() records the call stack at the point of the
+call. The result is a sequence of std::stacktrace_entry objects, each
+able to report a description, a source file and a line number when debug
+information is available. It can be streamed to std::cout or converted
+with std::to_string.
+"""
+example = """
+void fail() {
+    std::cout << std::stacktrace::current() << "\\n";
+}
+
+for (const auto& e : std::stacktrace::current())
+    std::cout << e.description() << "\\n";
+"""
+notes = """
+Support is recent and partial, and on GCC it needs an extra library at
+link time. Check your compiler's documentation. File and line numbers
+need the program to be built with debug information.
+"""
+ref = "https://en.cppreference.com/w/cpp/utility/basic_stacktrace"
+see_also = ["std::expected", "std::source_location"]

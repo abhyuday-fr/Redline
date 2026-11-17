@@ -1,0 +1,27 @@
+
+name = "designated initializers"
+header = "(core language, no header needed)"
+summary = "initialize aggregate members by name"
+synopsis = """
+T obj{ .member1 = value1, .member2 = value2 };
+"""
+description = """
+For an aggregate type, each member can be initialized by naming it. The
+designators must appear in the same order as the member declarations.
+Members left out get their default member initializer, or are
+value-initialized.
+"""
+example = """
+struct Options {
+    int port = 8080;
+    bool verbose = false;
+    const char* name = "server";
+};
+
+Options o{ .port = 9000, .verbose = true };
+"""
+notes = """
+Unlike C99, you cannot reorder designators, mix designated and positional
+initializers, nest them as .a.b = 1, or use them for arrays.
+"""
+see_also = ["structured bindings"]

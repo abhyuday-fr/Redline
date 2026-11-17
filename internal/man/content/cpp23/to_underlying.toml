@@ -1,0 +1,24 @@
+name = "std::to_underlying"
+header = "#include <utility>"
+summary = "convert an enumeration to its underlying integer type"
+synopsis = """
+template <class Enum>
+constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept;
+"""
+description = """
+to_underlying returns the integer value of an enumerator, in the
+enumeration's own underlying type. It does the job of
+static_cast<int>(e) without having to name the type, so the code stays
+correct if the underlying type of the enum changes.
+"""
+example = """
+enum class Color : std::uint8_t { Red = 1, Green = 2, Blue = 4 };
+
+auto n = std::to_underlying(Color::Green);     // std::uint8_t, value 2
+"""
+notes = """
+It only compiles for enumeration types, so it cannot be misused on an
+arbitrary integer.
+"""
+ref = "https://en.cppreference.com/w/cpp/utility/to_underlying"
+see_also = ["enum class"]

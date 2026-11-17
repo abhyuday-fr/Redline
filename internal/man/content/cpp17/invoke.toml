@@ -1,0 +1,30 @@
+name = "std::invoke"
+header = "#include <functional>"
+summary = "call any callable with a single uniform syntax"
+synopsis = """
+template <class F, class... Args>
+std::invoke_result_t<F, Args...> invoke(F&& f, Args&&... args);
+"""
+description = """
+std::invoke calls f with the given arguments. It handles every kind of
+callable: ordinary functions, lambdas and functors, and also pointers to
+member functions and member variables, where the first argument is the
+object (or a pointer to it).
+
+That uniformity is why generic code, such as a thread pool or a wrapper,
+uses it instead of writing f(args...) directly.
+"""
+example = """
+struct Widget { int size() const; std::string name; };
+
+Widget w;
+int n = std::invoke(&Widget::size, w);
+auto& s = std::invoke(&Widget::name, &w);     // pointer works too
+int m = std::invoke([](int a) { return a * 2; }, 21);
+"""
+notes = """
+std::apply calls a callable with the elements of a tuple, and
+std::is_invocable tests whether a call would be valid.
+"""
+ref = "https://en.cppreference.com/w/cpp/utility/functional/invoke"
+see_also = ["std::function", "lambda expressions"]

@@ -1,0 +1,29 @@
+
+name = "if constexpr"
+header = "(core language, no header needed)"
+summary = "compile-time conditional that discards the untaken branch"
+synopsis = """
+if constexpr (condition) statement
+if constexpr (condition) statement else statement
+"""
+description = """
+The condition must be a constant expression. Inside a template, the
+branch that is not taken is discarded and never instantiated, so it may
+contain code that would not compile for the current type. This replaces
+many tag-dispatch and enable_if patterns with ordinary-looking code.
+"""
+example = """
+template <class T>
+std::string describe(const T& x) {
+    if constexpr (std::is_arithmetic_v<T>)
+        return std::to_string(x);
+    else
+        return std::string(x);     // only instantiated for non-numbers
+}
+"""
+notes = """
+Outside a template, the discarded branch is still fully checked, so it is
+not a substitute for the preprocessor. A discarded return statement does
+not take part in return type deduction.
+"""
+see_also = ["concepts", "fold expressions"]

@@ -1,0 +1,35 @@
+name = "std::optional monadic operations"
+header = "#include <optional>"
+summary = "chain operations on an optional without explicit checks"
+synopsis = """
+optional<U> and_then(F&& f);
+optional<U> transform(F&& f);
+optional<T> or_else(F&& f);
+"""
+description = """
+Three member functions let you build a chain of steps that each may fail,
+and handle the empty case once at the end:
+
+    and_then   if a value is present, call f(value); f itself returns
+               an optional. If empty, the result is empty.
+    transform  if a value is present, call f(value) and wrap the plain
+               result in an optional. If empty, the result is empty.
+    or_else    if empty, call f() to produce a replacement optional.
+               If a value is present, the optional is returned as is.
+"""
+example = """
+std::optional<std::string> name = lookup(id);
+
+auto len = name.transform([](const std::string& s) { return s.size(); });
+
+auto user = parse_id(text)
+              .and_then(find_user)
+              .or_else([] { return std::optional<User>{guest()}; });
+"""
+notes = """
+The callable given to and_then must return an optional, and the one given
+to or_else must return the same optional type. std::expected has the same
+members.
+"""
+ref = "https://en.cppreference.com/w/cpp/utility/optional/and_then"
+see_also = ["std::optional", "std::expected"]

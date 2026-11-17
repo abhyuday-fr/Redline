@@ -1,0 +1,32 @@
+name = "std::flat_map"
+header = "#include <flat_map>"
+summary = "a sorted map stored in contiguous arrays"
+synopsis = """
+template <class Key, class T, class Compare = std::less<Key>,
+          class KeyContainer = std::vector<Key>,
+          class MappedContainer = std::vector<T>>
+class flat_map;
+"""
+description = """
+std::flat_map keeps keys in one sorted container and values in a
+parallel one, instead of a node-based tree. Iteration is fast and
+cache-friendly, memory use is low, and lookup is a binary search.
+
+The trade-off is that insertion and erasure take O(n), because elements
+shift like they do in a vector. It suits read-heavy maps that are built
+once or change rarely.
+"""
+example = """
+std::flat_map<std::string, int> ages;
+ages["ann"] = 31;
+ages["bob"] = 27;
+
+if (auto it = ages.find("ann"); it != ages.end())
+    use(it->second);
+"""
+notes = """
+Insertion or erasure invalidates iterators and references, as with a
+vector. std::flat_set, flat_multimap and flat_multiset are the siblings.
+Library support is recent, so check yours.
+"""
+see_also = ["std::span"]

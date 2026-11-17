@@ -1,0 +1,28 @@
+name = "std::move_only_function"
+header = "#include <functional>"
+summary = "a std::function that accepts move-only callables"
+synopsis = """
+template <class... Sig>
+class move_only_function;      // e.g. move_only_function<void() const noexcept>
+"""
+description = """
+std::move_only_function stores any callable that can be called with the
+given signature, and, unlike std::function, the callable does not have to
+be copyable. A lambda that captures a std::unique_ptr can be stored.
+
+The signature may carry const, noexcept and reference qualifiers, which
+describe how the stored callable is invoked.
+"""
+example = """
+std::move_only_function<void()> task =
+    [p = std::make_unique<Job>()] { p->run(); };
+
+auto queued = std::move(task);      // only moving is allowed
+queued();
+"""
+notes = """
+The wrapper itself is move-only. Calling an empty one is undefined
+behaviour, where std::function throws an exception, so test it first.
+"""
+ref = "https://en.cppreference.com/w/cpp/utility/functional/move_only_function"
+see_also = ["std::function", "std::unique_ptr"]

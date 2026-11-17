@@ -1,0 +1,28 @@
+name = "range-based for"
+header = "(core language, no header needed)"
+summary = "iterate over every element of a range"
+synopsis = """
+for (declaration : range) statement
+"""
+description = """
+The loop works on arrays, any type with begin() and end(), and braced
+initializer lists. The declaration is initialized from each element in
+turn, so the choice of auto decides whether you copy or refer:
+
+    for (auto x : v)          copy of each element
+    for (auto& x : v)         modifiable reference
+    for (const auto& x : v)   read-only reference, no copy
+"""
+example = """
+std::vector<std::string> names = {"ann", "bob"};
+for (const auto& n : names) {
+    std::cout << n << "\\n";
+}
+for (int x : {1, 2, 3}) use(x);
+"""
+notes = """
+Adding or removing elements of the container inside the loop can
+invalidate the iterators it uses. C++20 added an optional init-statement:
+for (init; declaration : range).
+"""
+see_also = ["auto", "structured bindings"]

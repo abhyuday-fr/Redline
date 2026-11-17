@@ -1,0 +1,33 @@
+name = "std::unique_ptr"
+header = "#include <memory>"
+summary = "a smart pointer with sole ownership of a heap object"
+synopsis = """
+template <class T, class Deleter = std::default_delete<T>>
+class unique_ptr;
+
+template <class T, class Deleter>
+class unique_ptr<T[], Deleter>;
+"""
+description = """
+std::unique_ptr owns the object it points to and destroys it when the
+pointer goes out of scope. It cannot be copied, only moved, so ownership
+is always in exactly one place. It has no overhead over a raw pointer
+when the default deleter is used.
+
+Useful members: get() returns the raw pointer without giving up
+ownership, release() gives up ownership, reset() destroys the current
+object, and operator bool tests for null.
+"""
+example = """
+std::unique_ptr<Widget> p(new Widget(3));
+auto q = std::move(p);        // ownership moves to q, p is now null
+
+void sink(std::unique_ptr<Widget> w);   // takes ownership
+sink(std::move(q));
+"""
+notes = """
+std::make_unique, which avoids writing new, arrived in C++14. Use
+unique_ptr<T[]> for arrays, and a custom deleter type for resources
+that are not freed with delete.
+"""
+see_also = ["std::move", "nullptr"]

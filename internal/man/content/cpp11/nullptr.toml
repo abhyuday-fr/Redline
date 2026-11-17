@@ -1,0 +1,27 @@
+name = "nullptr"
+header = "(core language, no header needed)"
+summary = "the null pointer literal"
+synopsis = """
+nullptr
+std::nullptr_t
+"""
+description = """
+nullptr is a literal of type std::nullptr_t. It converts to any pointer
+type and any pointer-to-member type, but not to an integer type. It
+replaces 0 and NULL as the way to write a null pointer.
+
+Because it is not an integer, overload resolution can tell it apart:
+f(nullptr) picks f(char*) over f(int), while f(NULL) may pick the int
+version or be ambiguous.
+"""
+example = """
+void f(int);
+void f(char*);
+
+f(nullptr);              // calls f(char*)
+
+int* p = nullptr;
+if (p == nullptr) { /* ... */ }
+"""
+notes = "std::nullptr_t is declared in <cstddef>."
+see_also = ["std::unique_ptr", "auto"]

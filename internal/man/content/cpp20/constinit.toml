@@ -1,0 +1,28 @@
+name = "constinit"
+header = "(core language, no header needed)"
+summary = "require a variable to be initialized at compile time"
+synopsis = """
+constinit int counter = 0;
+constinit thread_local int depth = compute();
+"""
+description = """
+constinit may be applied to a variable with static or thread storage
+duration. It guarantees constant initialization: the initializer must be
+a constant expression, or compilation fails. That removes the possibility
+of the static initialization order fiasco for that variable.
+
+Unlike constexpr, it does not make the variable const, so the value can
+change at runtime.
+"""
+example = """
+constexpr int start() { return 42; }
+
+constinit int counter = start();     // initialized at compile time
+void bump() { ++counter; }           // still mutable
+"""
+notes = """
+It combines with const or constexpr if you want those too. It is an
+error on a local non-static variable.
+"""
+ref = "https://en.cppreference.com/w/cpp/language/constinit"
+see_also = ["constexpr", "consteval"]

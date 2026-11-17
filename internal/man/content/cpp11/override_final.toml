@@ -1,0 +1,36 @@
+name = "override and final"
+header = "(core language, no header needed)"
+summary = "check and restrict virtual function overriding"
+synopsis = """
+void f() override;
+void f() final;
+class Derived final : public Base { /* ... */ };
+"""
+description = """
+override asks the compiler to verify that the function really overrides a
+virtual function of a base class. If the signature does not match, for
+example a missing const, compilation fails instead of silently creating
+a new unrelated function.
+
+final on a virtual function forbids further overriding in derived
+classes. On a class, it forbids deriving from it at all.
+"""
+example = """
+struct Shape {
+    virtual double area() const = 0;
+    virtual ~Shape() = default;
+};
+
+struct Circle final : Shape {
+    double area() const override { return 3.14159 * r * r; }
+    double r = 1;
+};
+"""
+notes = """
+Both are contextual keywords, so they are only special in these
+positions. Marking every overrider with override is a cheap habit that
+catches a whole class of bugs. final can also let the compiler call a
+virtual function directly.
+"""
+ref = "https://en.cppreference.com/w/cpp/language/override"
+see_also = ["std::unique_ptr"]

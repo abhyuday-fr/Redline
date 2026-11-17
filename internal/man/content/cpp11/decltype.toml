@@ -1,0 +1,30 @@
+name = "decltype"
+header = "(core language, no header needed)"
+summary = "get the type of an expression without evaluating it"
+synopsis = """
+decltype(expression)
+decltype(auto) name = expression;     // C++14
+"""
+description = """
+decltype yields the type of its operand. For a plain name it gives the
+declared type of that entity. For any other expression it gives the type
+and value category of the result: T for a prvalue, T& for an lvalue, T&&
+for an xvalue.
+
+The operand is never evaluated, so decltype(f()) does not call f.
+"""
+example = """
+int x = 0;
+decltype(x)   a = 1;       // int
+decltype((x)) b = x;       // int&  (extra parentheses make it an lvalue)
+
+template <class A, class B>
+auto add(A a, B b) -> decltype(a + b);
+"""
+notes = """
+The parentheses case is a common trap. C++14 added decltype(auto), which
+applies these rules to a deduced variable or return type, useful when a
+wrapper must return exactly what the wrapped call returns.
+"""
+ref = "https://en.cppreference.com/w/cpp/language/decltype"
+see_also = ["auto", "std::move"]

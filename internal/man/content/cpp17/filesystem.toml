@@ -1,0 +1,29 @@
+name = "std::filesystem"
+header = "#include <filesystem>"
+summary = "portable paths, directory traversal and file operations"
+synopsis = """
+namespace fs = std::filesystem;
+
+fs::path, fs::directory_iterator, fs::recursive_directory_iterator,
+fs::exists, fs::create_directories, fs::remove, fs::file_size
+"""
+description = """
+fs::path wraps a file name and handles separators for the platform.
+Operations such as exists, copy, rename, remove and file_size work on
+paths, and directory iterators walk a tree. Most functions come in two
+forms: one that throws fs::filesystem_error, and one that takes an
+std::error_code& and reports failure through it.
+"""
+example = """
+namespace fs = std::filesystem;
+
+for (const auto& e : fs::recursive_directory_iterator(".")) {
+    if (e.path().extension() == ".cpp")
+        std::cout << e.path() << "\\n";
+}
+"""
+notes = """
+operator/ joins path components: fs::path("a") / "b.txt". Old GCC
+versions (before 9) needed -lstdc++fs at link time.
+"""
+see_also = ["std::string_view"]

@@ -1,0 +1,31 @@
+name = "operator<=>"
+header = "#include <compare>"
+summary = "the three-way comparison operator"
+synopsis = """
+auto operator<=>(const T& other) const = default;
+std::strong_ordering, std::weak_ordering, std::partial_ordering
+"""
+description = """
+a <=> b returns an ordering object that compares as less, equal or greater
+than zero. The compiler rewrites a < b as (a <=> b) < 0, and likewise for
+<=, > and >=, so one operator provides all four relational operators.
+
+Defaulting it (= default) generates a memberwise lexicographic comparison
+in declaration order, and also implicitly declares a defaulted operator==.
+"""
+example = """
+struct Version {
+    int major;
+    int minor;
+    auto operator<=>(const Version&) const = default;
+};
+
+Version a{1, 2}, b{1, 10};
+bool older = a < b;      // true
+bool same  = a == b;     // false
+"""
+notes = """
+The result type depends on the members: integers give strong_ordering,
+floating point types give partial_ordering, because NaN is unordered.
+"""
+see_also = ["concepts"]

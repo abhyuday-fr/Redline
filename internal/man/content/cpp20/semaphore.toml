@@ -1,0 +1,33 @@
+name = "std::counting_semaphore"
+header = "#include <semaphore>"
+summary = "a lightweight counter that threads acquire and release"
+synopsis = """
+template <std::ptrdiff_t LeastMaxValue = /* implementation-defined */>
+class counting_semaphore;
+
+using binary_semaphore = std::counting_semaphore<1>;
+"""
+description = """
+A semaphore holds a count. acquire() waits until the count is above zero
+and then decrements it. release(n) increments it by n and wakes waiters.
+try_acquire, try_acquire_for and try_acquire_until are the non-blocking
+and timed forms.
+
+Unlike a mutex, a semaphore has no owner: a different thread can release
+what another acquired, which suits signalling and limiting concurrency.
+"""
+example = """
+std::counting_semaphore<4> slots(4);      // at most 4 at a time
+
+void job() {
+    slots.acquire();
+    do_work();
+    slots.release();
+}
+"""
+notes = """
+std::latch and std::barrier, also new in C++20, are for waiting until a
+group of threads reaches a point. They live in <latch> and <barrier>.
+"""
+ref = "https://en.cppreference.com/w/cpp/thread/counting_semaphore"
+see_also = ["std::jthread", "std::scoped_lock"]
