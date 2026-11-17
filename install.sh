@@ -4,6 +4,7 @@
 #   curl -sSL https://raw.githubusercontent.com/abhyuday-fr/Redline/main/install.sh | sh
 #
 # Respects $INSTALL_DIR if set, otherwise installs to ~/.local/bin.
+# Set $REDLINE_VERSION (e.g. 0.3.2 or v0.3.2) to install a specific release.
 set -eu
 
 REPO="abhyuday-fr/Redline"
@@ -25,12 +26,29 @@ case "$arch" in
         ;;
 esac
 
-echo "Fetching latest release info..."
-latest_url="https://api.github.com/repos/${REPO}/releases/latest"
-tag="$(curl -sSL "$latest_url" | grep -m1 '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')"
-if [ -z "$tag" ]; then
-    echo "error: couldn't determine the latest release tag from $latest_url" >&2
-    exit 1
+tag="${REDLINE_VERSION:-}"
+if [ -n "$tag" ]; then
+    case "$tag" in
+        v*) ;;
+        *) tag="v$tag" ;;
+    esac
+    echo "Using requested version $tag"
+else
+    echo "Fetching latest release info..."
+    # Resolve the tag through the /releases/latest redirect instead of the
+    # REST API: the API allows only 60 unauthenticated requests per hour per
+    # IP, which shared networks use up, while this redirect isn't limited.
+    latest_url="https://github.com/${REPO}/releases/latest"
+    final_url="$(curl -sSLI -o /dev/null -w '%{url_effective}' "$latest_url" || true)"
+    case "$final_url" in
+        */releases/tag/*) tag="${final_url##*/}" ;;
+        *) tag="" ;;
+    esac
+    if [ -z "$tag" ]; then
+        echo "error: couldn't determine the latest release tag from $latest_url" >&2
+        echo "       (is there a published release? see https://github.com/${REPO}/releases)" >&2
+        exit 1
+    fi
 fi
 
 version="${tag#v}"
@@ -42,8 +60,14 @@ tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 
 echo "Downloading redline ${tag} for linux/${arch}..."
-curl -sSL -o "$tmpdir/$archive" "$download_url"
-curl -sSL -o "$tmpdir/checksums.txt" "$checksums_url"
+curl -fsSL -o "$tmpdir/$archive" "$download_url" || {
+    echo "error: couldn't download $download_url" >&2
+    exit 1
+}
+curl -fsSL -o "$tmpdir/checksums.txt" "$checksums_url" || {
+    echo "error: couldn't download $checksums_url" >&2
+    exit 1
+}
 
 echo "Verifying checksum..."
 (cd "$tmpdir" && grep "$archive" checksums.txt | sha256sum -c -) || {
