@@ -1,0 +1,35 @@
+name = "C-style cast"
+header = "(core language, no header needed)"
+summary = "the (T)expr notation, which silently tries several named casts"
+synopsis = """
+(T)expression
+T(expression)
+"""
+description = """
+A C-style cast, and its functional form T(expression), tries these in
+order and uses the first that compiles:
+
+    const_cast
+    static_cast
+    static_cast followed by const_cast
+    reinterpret_cast
+    reinterpret_cast followed by const_cast
+
+It can also cast to a base class that is inaccessible. The danger is that
+a small mistake silently selects a stronger and more dangerous conversion
+than you meant, and nothing in the source shows which one was chosen.
+"""
+example = """
+double d = 3.9;
+int i = (int)d;                 // acts as static_cast<int>, gives 3
+
+char* p = (char*)"literal";     // acts as const_cast, strips const silently
+"""
+notes = """
+Prefer the named casts. They state intent and are easy to search for.
+GCC and Clang can warn about every use with -Wold-style-cast. With one
+argument, T(x) is the same as (T)x; with zero or several arguments it
+constructs a T.
+"""
+ref = "https://en.cppreference.com/w/cpp/language/explicit_cast"
+see_also = ["static_cast", "const_cast", "reinterpret_cast"]

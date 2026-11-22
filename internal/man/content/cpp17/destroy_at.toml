@@ -1,0 +1,42 @@
+name = "std::destroy_at"
+header = "#include <memory>"
+summary = "call an object's destructor in place"
+synopsis = """
+template <class T>
+void destroy_at(T* p);                 // constexpr since C++20
+
+template <class ForwardIt>
+void destroy(ForwardIt first, ForwardIt last);
+
+template <class ForwardIt, class Size>
+ForwardIt destroy_n(ForwardIt first, Size n);
+"""
+description = """
+std::destroy_at(p) runs the destructor of the object at p and ends its
+lifetime, without freeing the storage. It is the counterpart of placement
+new for code that manages raw memory itself, such as containers and
+allocators. destroy and destroy_n do the same for a range of objects.
+
+Writing p->~T() does the same job, but it requires naming the type;
+destroy_at works in generic code for any T, including types without a
+class destructor, such as int.
+"""
+example = """
+std::allocator<std::string> alloc;
+std::string* p = alloc.allocate(2);
+
+::new (p)     std::string("hello");
+::new (p + 1) std::string("world");
+
+std::destroy(p, p + 2);              // run both destructors
+alloc.deallocate(p, 2);              // then free the raw storage
+"""
+notes = """
+Destroying an object twice is undefined behaviour, and after the call the
+storage is raw memory again. Never use it on an object that was created
+with new; use delete for that. Since C++20, destroy_at can also be used in
+constant expressions and, given a pointer to an array, destroys the array
+elements in order.
+"""
+ref = "https://en.cppreference.com/w/cpp/memory/destroy_at"
+see_also = ["std::construct_at", "std::launder", "std::pmr"]

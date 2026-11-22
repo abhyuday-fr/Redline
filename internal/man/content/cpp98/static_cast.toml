@@ -1,0 +1,35 @@
+name = "static_cast"
+header = "(core language, no header needed)"
+summary = "convert between related types, checked at compile time"
+synopsis = """
+static_cast<T>(expression)
+"""
+description = """
+static_cast performs the conversions that the compiler can verify as
+well-defined:
+
+    numeric conversions               static_cast<int>(3.9)
+    enum to and from integers         static_cast<Color>(2)
+    void* back to the original T*     static_cast<T*>(vp)
+    derived to base, and base to derived (pointers and references)
+    user-defined conversions          through constructors and
+                                      conversion operators
+    discarding a value                static_cast<void>(expr)
+
+It refuses conversions between unrelated pointer types and never removes
+const. Those need reinterpret_cast and const_cast respectively.
+"""
+example = """
+double avg = static_cast<double>(total) / count;   // avoid integer division
+
+Base* b = new Derived;
+Derived* d = static_cast<Derived*>(b);   // OK only because b really is a Derived
+"""
+notes = """
+A downcast through static_cast is not checked at runtime. If the object
+is not really a Derived, the behaviour is undefined; use dynamic_cast when
+you are not sure. std::move is itself just a static_cast to an rvalue
+reference.
+"""
+ref = "https://en.cppreference.com/w/cpp/language/static_cast"
+see_also = ["dynamic_cast", "const_cast", "reinterpret_cast", "std::move"]

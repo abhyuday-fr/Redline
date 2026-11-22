@@ -1,0 +1,45 @@
+name = "std::launder"
+header = "#include <new>"
+summary = "get a pointer to the object that actually lives at an address"
+synopsis = """
+template <class T>
+constexpr T* launder(T* p) noexcept;
+"""
+description = """
+The compiler assumes things about objects it has seen: that const members
+and reference members never change, and that a pointer keeps referring to
+the same object. When you destroy an object and construct a new one in the
+same storage, a pointer from before may not refer to the new object, for
+example when the type has const or reference members, or the old object
+was const.
+
+std::launder(p) returns a pointer to the object that is really there, and
+tells the compiler to forget what it assumed about the old one.
+
+It is also needed when a pointer is obtained by casting a buffer address,
+because reinterpret_cast<T*>(buf) still points at the buffer, not at the
+T that was constructed inside it.
+"""
+example = """
+struct S { const int v; };
+
+S s{1};
+s.~S();
+::new (&s) S{2};
+int x = std::launder(&s)->v;      // 2; reading s.v directly may give 1
+
+struct Node { int id; int next; };
+alignas(Node) std::byte buf[sizeof(Node)];
+::new (buf) Node{1, 0};
+Node* n = std::launder(reinterpret_cast<Node*>(buf));
+"""
+notes = """
+There must really be an object of type T at the address, and all the
+bytes reachable through the result must also be reachable through p, or
+the behaviour is undefined. It is not a general way around strict
+aliasing. The pointer returned by placement new, or by std::construct_at,
+is already valid and does not need laundering. It cannot be used with
+void* or function pointers.
+"""
+ref = "https://en.cppreference.com/w/cpp/utility/launder"
+see_also = ["std::construct_at", "std::destroy_at", "reinterpret_cast"]

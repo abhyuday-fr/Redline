@@ -1,0 +1,59 @@
+name = "std::pmr"
+header = "#include <memory_resource>"
+summary = "polymorphic memory resources: swap allocation strategies at runtime"
+synopsis = """
+namespace std::pmr {
+    class memory_resource;
+    template <class T> class polymorphic_allocator;
+
+    class monotonic_buffer_resource;
+    class unsynchronized_pool_resource;
+    class synchronized_pool_resource;
+
+    memory_resource* new_delete_resource() noexcept;
+    memory_resource* null_memory_resource() noexcept;
+    memory_resource* get_default_resource() noexcept;
+    memory_resource* set_default_resource(memory_resource* r) noexcept;
+}
+"""
+description = """
+With an ordinary allocator the allocator type is part of the container
+type, so std::vector<int, A> and std::vector<int, B> are unrelated types.
+The pmr containers fix that: std::pmr::vector<T> is a std::vector whose
+allocator is std::pmr::polymorphic_allocator<T>, which forwards every
+request to a std::pmr::memory_resource chosen at runtime. One type, many
+allocation strategies.
+
+The standard resources are:
+
+    new_delete_resource         global operator new/delete (the default)
+    monotonic_buffer_resource   very fast bump allocation from a buffer
+                                you supply; deallocate does nothing and
+                                all memory is released at once
+    unsynchronized_pool_resource  size-class pools, single-threaded
+    synchronized_pool_resource  the same, safe across threads
+    null_memory_resource        always fails, to catch accidental heap use
+
+A container passes its resource on to elements that also use allocators,
+so a pmr::vector<pmr::string> keeps all of its strings in the same pool.
+"""
+example = """
+std::array<std::byte, 1024> buf;
+std::pmr::monotonic_buffer_resource pool(buf.data(), buf.size());
+
+std::pmr::vector<std::pmr::string> names(&pool);
+names.emplace_back("ann");      // the string allocates from pool too
+names.emplace_back("bob");
+// all memory is released together when pool is destroyed
+"""
+notes = """
+A container does not own its resource, so the resource must outlive every
+container that uses it; a dangling resource is the classic pmr bug. When
+the buffer runs out, a monotonic_buffer_resource falls back to its
+upstream resource, which is the default resource unless you pass another.
+Copy-constructing a pmr container uses the default resource, not the
+source's. Only synchronized_pool_resource is safe to share between
+threads.
+"""
+ref = "https://en.cppreference.com/w/cpp/memory/memory_resource"
+see_also = ["std::construct_at", "std::destroy_at"]

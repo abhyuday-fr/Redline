@@ -1,0 +1,29 @@
+name = "const_cast"
+header = "(core language, no header needed)"
+summary = "add or remove const and volatile"
+synopsis = """
+const_cast<T>(expression)
+"""
+description = """
+const_cast is the only cast that can remove const or volatile from a
+pointer or reference. It changes the type of the expression, not the
+object; the result refers to the same object.
+
+Removing const is safe only when the object was not originally declared
+const. Writing to an object that was defined const through the resulting
+pointer is undefined behaviour.
+"""
+example = """
+void legacy_print(char* s);          // old C API that does not modify s
+
+const char* msg = "hello";
+legacy_print(const_cast<char*>(msg));   // fine, it only reads
+"""
+notes = """
+The legitimate uses are narrow: calling a const-incorrect API that you
+know does not write, and sharing code between const and non-const member
+overloads. C++23 explicit object parameters (deducing this) remove the
+second use. It cannot convert between unrelated types.
+"""
+ref = "https://en.cppreference.com/w/cpp/language/const_cast"
+see_also = ["static_cast", "explicit object parameter"]

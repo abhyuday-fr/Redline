@@ -1,0 +1,36 @@
+name = "std::construct_at"
+header = "#include <memory>"
+summary = "construct an object at a given address, usable in constexpr code"
+synopsis = """
+template <class T, class... Args>
+constexpr T* construct_at(T* p, Args&&... args);
+"""
+description = """
+std::construct_at(p, args...) builds a T at the address p from args and
+returns p. It behaves like placement new,
+::new (static_cast<void*>(p)) T(std::forward<Args>(args)...),
+with one important difference: it can be used in constant expressions.
+That is what lets std::vector, std::allocator and similar code run at
+compile time in C++20.
+
+It does not allocate. The storage must already exist, be large enough and
+be suitably aligned.
+"""
+example = """
+std::allocator<Widget> alloc;
+Widget* p = alloc.allocate(1);
+
+std::construct_at(p, 3, "label");     // Widget(3, "label") in place
+use(*p);
+
+std::destroy_at(p);                   // end its lifetime
+alloc.deallocate(p, 1);
+"""
+notes = """
+The object must be destroyed later, with std::destroy_at or a destructor
+call. It initializes with parentheses, not braces, so a constructor
+taking std::initializer_list is not chosen the way it would be with
+braces. In ordinary runtime code, placement new does the same thing.
+"""
+ref = "https://en.cppreference.com/w/cpp/memory/construct_at"
+see_also = ["std::destroy_at", "std::launder", "constexpr"]

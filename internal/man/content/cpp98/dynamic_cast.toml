@@ -1,0 +1,37 @@
+name = "dynamic_cast"
+header = "(core language, no header needed)"
+summary = "checked conversion within a polymorphic class hierarchy"
+synopsis = """
+dynamic_cast<T*>(pointer)
+dynamic_cast<T&>(reference)
+dynamic_cast<void*>(pointer)
+"""
+description = """
+dynamic_cast checks at runtime whether the object really is of the
+requested type. The source type must be polymorphic, meaning it has at
+least one virtual function.
+
+The pointer form returns a null pointer when the check fails. The
+reference form has no null to return, so it throws std::bad_cast, which is
+declared in <typeinfo>. It also does sidecasts between unrelated bases of a
+common derived class, and dynamic_cast<void*> yields the address of the
+most derived object.
+"""
+example = """
+void draw(Shape* s) {
+    if (auto* c = dynamic_cast<Circle*>(s)) {
+        use(c->radius);
+    }
+}
+
+try {
+    Circle& c = dynamic_cast<Circle&>(*shape);
+} catch (const std::bad_cast&) { /* not a Circle */ }
+"""
+notes = """
+It needs runtime type information, so it does not work with -fno-rtti, and
+it costs a type lookup on every call. If you find yourself writing chains
+of dynamic_casts, a virtual function usually expresses the intent better.
+"""
+ref = "https://en.cppreference.com/w/cpp/language/dynamic_cast"
+see_also = ["static_cast", "override and final"]

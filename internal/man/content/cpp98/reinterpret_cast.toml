@@ -1,0 +1,34 @@
+name = "reinterpret_cast"
+header = "(core language, no header needed)"
+summary = "reinterpret a value's representation as another type"
+synopsis = """
+reinterpret_cast<T>(expression)
+"""
+description = """
+reinterpret_cast converts between pointer types that are otherwise
+unrelated, between pointers and integers, and between function pointer
+types. It generally does not change the bits, which is why the result is
+only valid to use in a few situations:
+
+    converting back to the original type gives the original value
+    reading an object's bytes through unsigned char, char or std::byte
+    pointer-interconvertible types, such as a standard-layout struct and
+    its first member
+
+Accessing an object through a pointer of a different type breaks strict
+aliasing and is undefined behaviour, even if it appears to work.
+"""
+example = """
+std::uintptr_t addr = reinterpret_cast<std::uintptr_t>(ptr);
+
+int value = 258;
+const auto* bytes = reinterpret_cast<const unsigned char*>(&value);
+// inspecting the bytes is allowed
+"""
+notes = """
+To read the bits of a float as an integer, use std::bit_cast (C++20) or
+memcpy. To get a pointer to an object constructed in a raw buffer, add
+std::launder. It cannot remove const; use const_cast for that.
+"""
+ref = "https://en.cppreference.com/w/cpp/language/reinterpret_cast"
+see_also = ["std::bit_cast", "std::launder", "static_cast"]
