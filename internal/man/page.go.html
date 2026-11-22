@@ -114,6 +114,9 @@
       border: 1px solid #659AD2;
     }
 
+    .cpp98 { background: #a9c7e8; color: #04213f; }
+    .chip.cpp98[aria-pressed="true"] { background: #4a82bd; }
+
     .cpp11 {
       background: #659AD2;
       color: #04213f;
@@ -264,6 +267,7 @@
     </div>
     <input id="q" placeholder="filter…" autocomplete="off">
     <div class="chips">
+      <button class="chip cpp98" data-std="cpp98" aria-pressed="false">C++98<span class="n"></span></button>
       <button class="chip cpp11" data-std="cpp11" aria-pressed="false">C++11<span class="n"></span></button>
       <button class="chip cpp17" data-std="cpp17" aria-pressed="false">C++17<span class="n"></span></button>
       <button class="chip cpp20" data-std="cpp20" aria-pressed="false">C++20<span class="n"></span></button>
