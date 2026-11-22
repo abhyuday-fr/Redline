@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"path"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/BurntSushi/toml"
@@ -53,7 +54,7 @@ func loadEntries() ([]Entry, error) {
 	})
 	sort.Slice(out, func(i, j int) bool {
 		if out[i].Standard != out[j].Standard {
-			return out[i].Standard < out[j].Standard
+			return stdRank(out[i].Standard) < stdRank(out[j].Standard)
 		}
 		return out[i].Name < out[j].Name
 	})
@@ -62,4 +63,13 @@ func loadEntries() ([]Entry, error) {
 
 func fmtErr(p string, err error) error {
 	return fmt.Errorf("%s: %w", p, err)
+}
+
+// stdRank orders standards chronologically: cpp98 sorts before cpp11.
+func stdRank(std string) int {
+	n, _ := strconv.Atoi(strings.TrimPrefix(std, "cpp"))
+	if n >= 90 {
+		n -= 100 // 98 -> -2, so it sorts first
+	}
+	return n
 }
